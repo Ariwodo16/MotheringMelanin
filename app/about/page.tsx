@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { CTASection } from "@/components/ui";
+import Image from "next/image";
+
 
 export const metadata: Metadata = {
   title: "About Jazzlyn | Meet Your Doula",
@@ -47,45 +49,23 @@ export default function AboutPage() {
             </p>
           </div>
           {/* ⬇️ REPLACE with <Image> component */}
-          <div
+         <div
             style={{
               aspectRatio: "4/5",
               borderRadius: "2rem",
-              backgroundColor: "var(--color-blush)",
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              justifyContent: "center",
-              textAlign: "center",
-              padding: "2rem",
+              overflow: "hidden",
+              position: "relative",
               maxWidth: "28rem",
+              width: "100%",
             }}
           >
-            <p
-              style={{
-                fontFamily: "var(--font-sans)",
-                fontSize: "0.625rem",
-                color: "color-mix(in srgb, var(--color-cocoa) 40%, transparent)",
-                letterSpacing: "0.15em",
-                textTransform: "uppercase",
-                marginBottom: "0.5rem",
-              }}
-            >
-              [ Image Placeholder ]
-            </p>
-            <p
-              style={{
-                fontFamily: "var(--font-serif)",
-                fontSize: "1.125rem",
-                color: "color-mix(in srgb, var(--color-cocoa) 50%, transparent)",
-                fontStyle: "italic",
-                margin: 0,
-              }}
-            >
-              Jazzlyn&apos;s portrait
-              <br />
-              4:5 ratio, warm natural light
-            </p>
+            <Image
+              src="/logos/Jazzlyn2.jpeg"
+              alt="Jazzlyn, founder of Mothering Melanin"
+              fill
+              priority
+              style={{ objectFit: "cover", objectPosition: "center top" }}
+            />
           </div>
         </div>
       </section>

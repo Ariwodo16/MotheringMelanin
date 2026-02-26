@@ -15,7 +15,7 @@ interface Package {
 }
 
 const PACKAGES: Package[] = [
-    {
+  {
     id: "consultation",
     name: "Initial Consultation",
     tagline: "Let's connect to see if we're a good fit — no commitment required",
@@ -248,7 +248,7 @@ export default function ContactPage() {
             Let&apos;s start the conversation
           </h1>
           <p className="text-body-lg" style={{ color: "color-mix(in srgb, var(--color-cocoa) 60%, transparent)", maxWidth: "36rem", marginLeft: "auto", marginRight: "auto" }}>
-            Choose a package below and complete your intake — or use Calendly on the right to book a free discovery call first.
+            Choose a package below and complete your intake — or use Acuity on the right to book a free discovery call first.
           </p>
         </div>
       </section>
@@ -267,7 +267,7 @@ export default function ContactPage() {
                   Choose Your Package
                 </h2>
                 <p style={{ fontFamily: "var(--font-sans)", fontSize: "0.875rem", color: "color-mix(in srgb, var(--color-cocoa) 60%, transparent)", marginBottom: "1.75rem", marginTop: 0, lineHeight: 1.7 }}>
-                  Select the package that feels right for your family. Not sure? Book a free consultation using Calendly on the right.
+                  Select the package that feels right for your family. Not sure? Book a free consultation using Acuity on the right.
                 </p>
 
                 <div style={{ display: "flex", flexDirection: "column", gap: "0.875rem", marginBottom: "1.75rem" }}>
@@ -276,23 +276,17 @@ export default function ContactPage() {
                       key={pkg.id}
                       onClick={() => setSelected(pkg)}
                       style={{
-                      borderWidth: selected?.id === pkg.id ? "2px" : "1px",
-                      borderStyle: pkg.isFree
-                        ? (selected?.id === pkg.id ? "solid" : "dashed")
-                        : "solid",
-                      borderColor: selected?.id === pkg.id
-                        ? (pkg.isFree ? "#7A8C6E" : "var(--color-terracotta)")
-                        : "color-mix(in srgb, var(--color-cocoa) 12%, transparent)",
-
-                      borderRadius: "0.75rem",
-                      padding: "1.25rem 1.5rem",
-                      cursor: "pointer",
-                      backgroundColor: selected?.id === pkg.id
-                        ? "white"
-                        : "color-mix(in srgb, var(--color-cream) 60%, white)",
-                      transition: "all 0.2s",
-                      position: "relative",
-                    }}
+                        border: selected?.id === pkg.id
+                          ? `2px solid ${pkg.isFree ? "#7A8C6E" : "var(--color-terracotta)"}`
+                          : "1px solid color-mix(in srgb, var(--color-cocoa) 12%, transparent)",
+                        borderStyle: pkg.isFree ? (selected?.id === pkg.id ? "solid" : "dashed") : "solid",
+                        borderRadius: "0.75rem",
+                        padding: "1.25rem 1.5rem",
+                        cursor: "pointer",
+                        backgroundColor: selected?.id === pkg.id ? "white" : "color-mix(in srgb, var(--color-cream) 60%, white)",
+                        transition: "all 0.2s",
+                        position: "relative",
+                      }}
                     >
                       {/* Selected indicator */}
                       <div style={{
@@ -348,7 +342,7 @@ export default function ContactPage() {
                   Continue to Intake Form →
                 </button>
                 <p style={{ fontFamily: "var(--font-sans)", fontSize: "0.75rem", color: "color-mix(in srgb, var(--color-cocoa) 40%, transparent)", textAlign: "center", margin: "0.875rem 0 0" }}>
-                  Or use Calendly on the right to book a free discovery call directly.
+                  Or use Acuity on the right to book a free discovery call directly.
                 </p>
               </>
             )}
@@ -604,18 +598,17 @@ export default function ContactPage() {
             <div className="card" style={{ padding: "1.75rem" }}>
               <h3 style={{ fontFamily: "var(--font-serif)", fontSize: "1.125rem", color: "var(--color-cocoa)", marginBottom: "0.75rem", marginTop: 0 }}>Prefer to schedule directly?</h3>
               <p style={{ fontFamily: "var(--font-sans)", fontSize: "0.875rem", color: "color-mix(in srgb, var(--color-cocoa) 65%, transparent)", lineHeight: 1.7, marginBottom: "1.25rem", marginTop: 0 }}>
-                Use Calendly to book at a time that works for you.
+                Use Acuity to pick a time that works for you — no back-and-forth needed.
               </p>
-              {/* ⬇️ REPLACE with your actual Calendly link */}
-              <a href="https://calendly.com" target="_blank" rel="noopener noreferrer" className="btn-outline" style={{ justifyContent: "center" }}>
-                Open Calendly →
+              <a href="https://motheringmelanin.as.me" target="_blank" rel="noopener noreferrer" className="btn-outline" style={{ justifyContent: "center" }}>
+                Open Scheduler →
               </a>
             </div>
 
             <div className="card" style={{ padding: "1.75rem" }}>
               <h3 style={{ fontFamily: "var(--font-serif)", fontSize: "1.125rem", color: "var(--color-cocoa)", marginBottom: "0.75rem", marginTop: 0 }}>Service Area</h3>
               <p style={{ fontFamily: "var(--font-sans)", fontSize: "0.875rem", color: "color-mix(in srgb, var(--color-cocoa) 65%, transparent)", lineHeight: 1.7, margin: 0 }}>
-                Hillsborough, Pinellas, Pasco, Polk, and Manatee counties. Virtual support available nationwide.
+                Hillsborough, Pinellas, Pasco, and Polk counties. Virtual support available nationwide.
               </p>
             </div>
 

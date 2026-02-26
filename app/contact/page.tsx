@@ -15,6 +15,18 @@ interface Package {
 }
 
 const PACKAGES: Package[] = [
+    {
+    id: "consultation",
+    name: "Initial Consultation",
+    tagline: "Let's connect to see if we're a good fit — no commitment required",
+    price: 0, priceDisplay: "Free", isFree: true,
+    includes: [
+      "30-minute discovery call",
+      "Get to know each other",
+      "Discuss your needs & preferences",
+      "Find the perfect fit for your journey",
+    ],
+  },
   {
     id: "blessed-beginnings",
     name: "Blessed Beginnings",
@@ -52,18 +64,6 @@ const PACKAGES: Package[] = [
       "Full, continuous labor & childbirth support",
       "Immediate postpartum support up to 1 hour after birth or first feeding",
       "1 one-hour postpartum visit — processing, referrals & practical support",
-    ],
-  },
-  {
-    id: "consultation",
-    name: "Initial Consultation",
-    tagline: "Let's connect to see if we're a good fit — no commitment required",
-    price: 0, priceDisplay: "Free", isFree: true,
-    includes: [
-      "30-minute discovery call",
-      "Get to know each other",
-      "Discuss your needs & preferences",
-      "Find the perfect fit for your journey",
     ],
   },
 ];

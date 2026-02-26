@@ -75,17 +75,13 @@ const CONDITIONS = [
   "Hyperthyroidism", "Hypothyroidism", "Asthma", "Epilepsy", "Multiple Sclerosis",
   "STI's/HIV", "Back Condition/Injury", "Hip Injury",
 ];
-
 const HISTORY_OF_ABUSE = ["Sexual Assault", "Physical Abuse", "Emotional Abuse"];
-
 const PRONOUNS = ["she/her", "he/him", "they/them"];
-
 const REFERRAL_OPTIONS = [
   "Instagram", "Facebook", "TikTok", "Google Search",
   "Referral from Friend or Family", "Provider Referral",
   "Community Event", "Other",
 ];
-
 const US_STATES = [
   "AL","AK","AZ","AR","CA","CO","CT","DE","FL","GA","HI","ID","IL","IN","IA",
   "KS","KY","LA","ME","MD","MA","MI","MN","MS","MO","MT","NE","NV","NH","NJ",
@@ -94,53 +90,26 @@ const US_STATES = [
 ];
 
 interface AddressData {
-  country: string;
-  line1: string;
-  line2: string;
-  city: string;
-  state: string;
-  zip: string;
+  country: string; line1: string; line2: string;
+  city: string; state: string; zip: string;
 }
-
 const emptyAddress: AddressData = { country: "US", line1: "", line2: "", city: "", state: "", zip: "" };
 
 interface IntakeData {
-  // Birthing person
-  firstName: string;
-  lastName: string;
-  age: string;
-  pronouns: string;
-  // Support person
-  supportFirstName: string;
-  supportLastName: string;
-  supportPronouns: string;
-  // Contact
-  email: string;
-  phone: string;
-  dueDate: string;
-  // Provider
-  providerFirstName: string;
-  providerLastName: string;
-  // Home address
-  homeAddress: AddressData;
-  // Birthing location
-  birthingAddress: AddressData;
-  // Health
-  conditions: string[];
-  abuseHistory: string[];
-  tokophobia: string;
-  // Other
-  additionalInfo: string;
-  referral: string;
+  firstName: string; lastName: string; age: string; pronouns: string;
+  supportFirstName: string; supportLastName: string; supportPronouns: string;
+  email: string; phone: string; dueDate: string;
+  providerFirstName: string; providerLastName: string;
+  homeAddress: AddressData; birthingAddress: AddressData;
+  conditions: string[]; abuseHistory: string[]; tokophobia: string;
+  additionalInfo: string; referral: string;
 }
-
 const emptyIntake: IntakeData = {
   firstName: "", lastName: "", age: "", pronouns: "",
   supportFirstName: "", supportLastName: "", supportPronouns: "",
   email: "", phone: "", dueDate: "",
   providerFirstName: "", providerLastName: "",
-  homeAddress: { ...emptyAddress },
-  birthingAddress: { ...emptyAddress },
+  homeAddress: { ...emptyAddress }, birthingAddress: { ...emptyAddress },
   conditions: [], abuseHistory: [], tokophobia: "",
   additionalInfo: "", referral: "",
 };
@@ -149,14 +118,17 @@ type ModalStep = "intake" | "checkout" | "success";
 type ActivePackage = typeof packages[number] | null;
 
 export default function ServicesPage() {
-  const [activePkg, setActivePkg] = useState<ActivePackage>(null);
-  const [step, setStep]           = useState<ModalStep>("intake");
-  const [intake, setIntake]       = useState<IntakeData>(emptyIntake);
+  const [activePkg, setActivePkg]     = useState<ActivePackage>(null);
+  const [step, setStep]               = useState<ModalStep>("intake");
+  const [intake, setIntake]           = useState<IntakeData>(emptyIntake);
+  const [loading, setLoading]         = useState(false);
+  const [stripeError, setStripeError] = useState<string | null>(null);
 
   function openModal(pkg: typeof packages[number]) {
     setActivePkg(pkg);
     setStep("intake");
     setIntake(emptyIntake);
+    setStripeError(null);
     document.body.style.overflow = "hidden";
   }
 
@@ -170,10 +142,7 @@ export default function ServicesPage() {
   }
 
   function updateAddress(section: "homeAddress" | "birthingAddress", field: keyof AddressData, value: string) {
-    setIntake((prev) => ({
-      ...prev,
-      [section]: { ...prev[section], [field]: value },
-    }));
+    setIntake((prev) => ({ ...prev, [section]: { ...prev[section], [field]: value } }));
   }
 
   function toggleCondition(condition: string) {
@@ -222,15 +191,33 @@ export default function ServicesPage() {
     return true;
   }
 
-  function handlePayPal() {
+  async function handleStripeCheckout() {
     if (!activePkg) return;
-    // ── Replace YOURPAYPALHANDLE with your PayPal.me username ──
-    const url = `https://www.paypal.com/paypalme/YOURPAYPALHANDLE/${activePkg.priceNum}USD`;
-    window.open(url, "_blank");
-    setTimeout(() => setStep("success"), 1200);
+    setLoading(true);
+    setStripeError(null);
+    try {
+      const res = await fetch("/api/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          packageId: activePkg.id,
+          customerEmail: intake.email,
+          customerName: `${intake.firstName} ${intake.lastName}`.trim(),
+        }),
+      });
+      const data = await res.json();
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        setStripeError("Something went wrong. Please try again.");
+      }
+    } catch {
+      setStripeError("Unable to connect to payment processor. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   }
 
-  // ── Shared styles (matching your existing site) ──
   const inp: React.CSSProperties = {
     width: "100%", padding: "0.75rem 1rem",
     border: "1px solid color-mix(in srgb, var(--color-cocoa) 15%, transparent)",
@@ -238,19 +225,15 @@ export default function ServicesPage() {
     backgroundColor: "white", color: "var(--color-cocoa)", outline: "none",
     transition: "border-color 0.2s", boxSizing: "border-box" as const,
   };
-
   const lbl: React.CSSProperties = {
     display: "block", fontFamily: "var(--font-sans)", fontSize: "0.875rem",
     fontWeight: 500, color: "var(--color-cocoa)", marginBottom: "0.375rem",
   };
-
   const sectionHeading: React.CSSProperties = {
     fontFamily: "var(--font-serif)", fontSize: "1.125rem", fontWeight: 500,
-    color: "var(--color-cocoa)", margin: "0 0 1rem",
-    paddingBottom: "0.5rem",
+    color: "var(--color-cocoa)", margin: "0 0 1rem", paddingBottom: "0.5rem",
     borderBottom: "1px solid color-mix(in srgb, var(--color-cocoa) 10%, transparent)",
   };
-
   const req = <span style={{ color: "var(--color-terracotta)" }}>*</span>;
 
   function Field({ label, required, hint, children }: { label: string; required?: boolean; hint?: string; children: React.ReactNode }) {
@@ -418,7 +401,7 @@ export default function ServicesPage() {
 
       <CTASection headline="Ready to find the right package for you?" sub="Let's talk through your due date, goals, and questions in a free 30-minute consultation." />
 
-      {/* ════════════════ MODAL ════════════════ */}
+      {/* MODAL */}
       {activePkg && (
         <div
           onClick={(e) => { if (e.target === e.currentTarget) closeModal(); }}
@@ -437,7 +420,7 @@ export default function ServicesPage() {
                 <span style={{ fontFamily: "var(--font-serif)", fontSize: "1.2rem", fontWeight: 300, color: "#F5D98C" }}>{activePkg.price}</span>
               </div>
 
-              {/* ══ INTAKE STEP ══ */}
+              {/* ── INTAKE ── */}
               {step === "intake" && (
                 <>
                   <h2 style={{ fontFamily: "var(--font-serif)", fontSize: "1.5rem", color: "var(--color-cocoa)", marginBottom: "0.25rem", marginTop: 0 }}>Client Intake Form</h2>
@@ -447,7 +430,6 @@ export default function ServicesPage() {
 
                   <div style={{ display: "flex", flexDirection: "column", gap: "2rem" }}>
 
-                    {/* ── BIRTHING PERSON ── */}
                     <div style={{ display: "flex", flexDirection: "column", gap: "0.875rem" }}>
                       <h3 style={sectionHeading}>Birthing Person</h3>
                       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.875rem" }}>
@@ -465,7 +447,6 @@ export default function ServicesPage() {
                       </div>
                     </div>
 
-                    {/* ── SUPPORT PERSON ── */}
                     <div style={{ display: "flex", flexDirection: "column", gap: "0.875rem" }}>
                       <h3 style={sectionHeading}>Birthing Partner / Support Person</h3>
                       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.875rem" }}>
@@ -480,7 +461,6 @@ export default function ServicesPage() {
                       </Field>
                     </div>
 
-                    {/* ── CONTACT INFO ── */}
                     <div style={{ display: "flex", flexDirection: "column", gap: "0.875rem" }}>
                       <h3 style={sectionHeading}>Contact Information</h3>
                       <Field label="Email Address" required><input style={inp} type="email" value={intake.email} onChange={(e) => update("email", e.target.value)} placeholder="your@email.com" /></Field>
@@ -488,7 +468,6 @@ export default function ServicesPage() {
                       <Field label="Estimated Due Date" required><input style={inp} type="date" value={intake.dueDate} onChange={(e) => update("dueDate", e.target.value)} /></Field>
                     </div>
 
-                    {/* ── HEALTH CARE PROVIDER ── */}
                     <div style={{ display: "flex", flexDirection: "column", gap: "0.875rem" }}>
                       <h3 style={sectionHeading}>Health Care Provider</h3>
                       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.875rem" }}>
@@ -497,13 +476,9 @@ export default function ServicesPage() {
                       </div>
                     </div>
 
-                    {/* ── HOME ADDRESS ── */}
                     <AddressBlock section="homeAddress" label="Home Address" hint="This is for prenatal and postpartum appointments." />
-
-                    {/* ── BIRTHING LOCATION ── */}
                     <AddressBlock section="birthingAddress" label="Birthing Location" />
 
-                    {/* ── PRE-EXISTING CONDITIONS ── */}
                     <div style={{ display: "flex", flexDirection: "column", gap: "0.875rem" }}>
                       <h3 style={sectionHeading}>Pre-existing Conditions / Injuries</h3>
                       <p style={{ fontFamily: "var(--font-sans)", fontSize: "0.75rem", color: "color-mix(in srgb, var(--color-cocoa) 50%, transparent)", margin: "-0.25rem 0 0", lineHeight: 1.5 }}>
@@ -512,19 +487,13 @@ export default function ServicesPage() {
                       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.5rem" }}>
                         {CONDITIONS.map((condition) => (
                           <label key={condition} style={{ display: "flex", alignItems: "center", gap: "0.5rem", cursor: "pointer", fontFamily: "var(--font-sans)", fontSize: "0.875rem", color: "color-mix(in srgb, var(--color-cocoa) 75%, transparent)" }}>
-                            <input
-                              type="checkbox"
-                              checked={intake.conditions.includes(condition)}
-                              onChange={() => toggleCondition(condition)}
-                              style={{ accentColor: "var(--color-terracotta)", width: "16px", height: "16px", flexShrink: 0 }}
-                            />
+                            <input type="checkbox" checked={intake.conditions.includes(condition)} onChange={() => toggleCondition(condition)} style={{ accentColor: "var(--color-terracotta)", width: "16px", height: "16px", flexShrink: 0 }} />
                             {condition}
                           </label>
                         ))}
                       </div>
                     </div>
 
-                    {/* ── HISTORY OF ABUSE ── */}
                     <div style={{ display: "flex", flexDirection: "column", gap: "0.875rem" }}>
                       <h3 style={sectionHeading}>History of Abuse</h3>
                       <p style={{ fontFamily: "var(--font-sans)", fontSize: "0.75rem", color: "color-mix(in srgb, var(--color-cocoa) 50%, transparent)", margin: "-0.25rem 0 0", lineHeight: 1.5 }}>
@@ -533,33 +502,20 @@ export default function ServicesPage() {
                       <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
                         {HISTORY_OF_ABUSE.map((item) => (
                           <label key={item} style={{ display: "flex", alignItems: "center", gap: "0.5rem", cursor: "pointer", fontFamily: "var(--font-sans)", fontSize: "0.875rem", color: "color-mix(in srgb, var(--color-cocoa) 75%, transparent)" }}>
-                            <input
-                              type="checkbox"
-                              checked={intake.abuseHistory.includes(item)}
-                              onChange={() => toggleAbuse(item)}
-                              style={{ accentColor: "var(--color-terracotta)", width: "16px", height: "16px", flexShrink: 0 }}
-                            />
+                            <input type="checkbox" checked={intake.abuseHistory.includes(item)} onChange={() => toggleAbuse(item)} style={{ accentColor: "var(--color-terracotta)", width: "16px", height: "16px", flexShrink: 0 }} />
                             {item}
                           </label>
                         ))}
                       </div>
                     </div>
 
-                    {/* ── TOKOPHOBIA ── */}
                     <div style={{ display: "flex", flexDirection: "column", gap: "0.875rem" }}>
                       <h3 style={sectionHeading}>Fear of Childbirth</h3>
                       <Field label="Do you have tokophobia / fear of childbirth?">
                         <div style={{ display: "flex", gap: "1.5rem" }}>
                           {["Yes", "No"].map((opt) => (
                             <label key={opt} style={{ display: "flex", alignItems: "center", gap: "0.5rem", cursor: "pointer", fontFamily: "var(--font-sans)", fontSize: "0.875rem", color: "color-mix(in srgb, var(--color-cocoa) 75%, transparent)" }}>
-                              <input
-                                type="radio"
-                                name="tokophobia"
-                                value={opt}
-                                checked={intake.tokophobia === opt}
-                                onChange={() => update("tokophobia", opt)}
-                                style={{ accentColor: "var(--color-terracotta)", width: "16px", height: "16px" }}
-                              />
+                              <input type="radio" name="tokophobia" value={opt} checked={intake.tokophobia === opt} onChange={() => update("tokophobia", opt)} style={{ accentColor: "var(--color-terracotta)", width: "16px", height: "16px" }} />
                               {opt}
                             </label>
                           ))}
@@ -567,7 +523,6 @@ export default function ServicesPage() {
                       </Field>
                     </div>
 
-                    {/* ── ADDITIONAL INFO ── */}
                     <div style={{ display: "flex", flexDirection: "column", gap: "0.875rem" }}>
                       <h3 style={sectionHeading}>Anything Else?</h3>
                       <Field label="Anything else you would like me to know?">
@@ -575,7 +530,6 @@ export default function ServicesPage() {
                       </Field>
                     </div>
 
-                    {/* ── REFERRAL ── */}
                     <div style={{ display: "flex", flexDirection: "column", gap: "0.875rem" }}>
                       <h3 style={sectionHeading}>How Did You Find Us?</h3>
                       <Field label="How did you hear about Mothering Melanin?">
@@ -601,7 +555,7 @@ export default function ServicesPage() {
                 </>
               )}
 
-              {/* ══ CHECKOUT STEP ══ */}
+              {/* ── CHECKOUT ── */}
               {step === "checkout" && (
                 <>
                   <button onClick={() => setStep("intake")} style={{ background: "none", border: "none", cursor: "pointer", fontFamily: "var(--font-sans)", fontSize: "0.8rem", color: "color-mix(in srgb, var(--color-cocoa) 55%, transparent)", display: "flex", alignItems: "center", gap: "6px", marginBottom: "1.25rem", padding: 0 }}>
@@ -609,8 +563,9 @@ export default function ServicesPage() {
                   </button>
                   <h2 style={{ fontFamily: "var(--font-serif)", fontSize: "1.5rem", color: "var(--color-cocoa)", marginBottom: "0.375rem", marginTop: 0 }}>Complete Your Booking</h2>
                   <p style={{ fontFamily: "var(--font-sans)", fontSize: "0.875rem", color: "color-mix(in srgb, var(--color-cocoa) 60%, transparent)", marginBottom: "1.5rem", marginTop: 0, lineHeight: 1.7 }}>
-                    Review your order and pay securely through PayPal.
+                    Review your order and pay securely. You&apos;ll be redirected to Stripe&apos;s checkout page.
                   </p>
+
                   <div style={{ backgroundColor: "color-mix(in srgb, var(--color-cocoa) 5%, white)", borderRadius: "0.75rem", padding: "1.25rem 1.5rem", marginBottom: "1.5rem" }}>
                     <p style={{ fontFamily: "var(--font-serif)", fontSize: "1rem", color: "var(--color-cocoa)", marginBottom: "0.875rem", marginTop: 0 }}>Order Summary</p>
                     {[
@@ -628,31 +583,42 @@ export default function ServicesPage() {
                       <span style={{ fontFamily: "var(--font-serif)", fontSize: "1.5rem", fontWeight: 300, color: "var(--color-terracotta)" }}>{activePkg.price}</span>
                     </div>
                   </div>
-                  <p style={{ fontFamily: "var(--font-sans)", fontSize: "0.8rem", color: "color-mix(in srgb, var(--color-cocoa) 55%, transparent)", textAlign: "center", marginBottom: "1rem", lineHeight: 1.6 }}>
-                    You&apos;ll be securely redirected to <strong style={{ color: "var(--color-cocoa)" }}>PayPal</strong> to complete your payment.
-                  </p>
+
+                  {stripeError && (
+                    <p style={{ fontFamily: "var(--font-sans)", fontSize: "0.85rem", color: "#c0392b", backgroundColor: "#fdf0ef", borderRadius: "0.5rem", padding: "0.75rem 1rem", marginBottom: "1rem" }}>
+                      {stripeError}
+                    </p>
+                  )}
+
                   <button
-                    onClick={handlePayPal}
-                    style={{ width: "100%", backgroundColor: "#0070BA", color: "white", border: "none", borderRadius: "0.75rem", padding: "1rem", fontFamily: "var(--font-sans)", fontWeight: 600, fontSize: "1rem", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: "0.625rem" }}
-                    onMouseOver={(e) => (e.currentTarget.style.backgroundColor = "#005ea6")}
-                    onMouseOut={(e) => (e.currentTarget.style.backgroundColor = "#0070BA")}
+                    onClick={handleStripeCheckout}
+                    disabled={loading}
+                    style={{ width: "100%", backgroundColor: "#635BFF", color: "white", border: "none", borderRadius: "0.75rem", padding: "1rem", fontFamily: "var(--font-sans)", fontWeight: 600, fontSize: "1rem", cursor: loading ? "not-allowed" : "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: "0.625rem", opacity: loading ? 0.7 : 1 }}
+                    onMouseOver={(e) => { if (!loading) e.currentTarget.style.backgroundColor = "#4f46e5"; }}
+                    onMouseOut={(e) => { e.currentTarget.style.backgroundColor = "#635BFF"; }}
                   >
-                    <span style={{ fontStyle: "italic", fontWeight: 700 }}>Pay<span style={{ color: "#FFD700" }}>Pal</span></span>
-                    Pay Securely with PayPal
+                    {loading ? "Redirecting to Stripe…" : (
+                      <>
+                        <svg style={{ width: "1.125rem", height: "1.125rem", fill: "white" }} viewBox="0 0 24 24" aria-hidden="true">
+                          <path d="M13.479 9.883c-1.626-.604-2.512-1.067-2.512-1.803 0-.622.518-1.019 1.399-1.019 1.599 0 3.22.607 4.336 1.146l.635-3.91C16.024 3.713 14.34 3 12.05 3 9.301 3 7.2 4.527 7.2 7.21c0 2.521 1.873 3.785 4.228 4.573 1.671.566 2.278 1.067 2.278 1.757 0 .69-.556 1.134-1.569 1.134-1.463 0-3.318-.659-4.664-1.534l-.658 3.967c1.272.851 3.271 1.553 5.488 1.553 2.88 0 5.024-1.39 5.024-4.228-.001-2.615-1.87-3.842-4.848-4.549z"/>
+                        </svg>
+                        Pay Securely with Stripe
+                      </>
+                    )}
                   </button>
                   <p style={{ fontFamily: "var(--font-sans)", fontSize: "0.75rem", color: "color-mix(in srgb, var(--color-cocoa) 40%, transparent)", textAlign: "center", margin: "0.625rem 0 0", display: "flex", alignItems: "center", justifyContent: "center", gap: "0.375rem" }}>
-                    🔒 Payments processed securely by PayPal
+                    🔒 Payments processed securely by Stripe
                   </p>
                 </>
               )}
 
-              {/* ══ SUCCESS STEP ══ */}
+              {/* ── SUCCESS ── */}
               {step === "success" && (
                 <div style={{ padding: "2rem 0", textAlign: "center" }}>
                   <div style={{ fontSize: "2.5rem", marginBottom: "1rem" }}>🌸</div>
                   <h3 style={{ fontFamily: "var(--font-serif)", fontSize: "1.25rem", color: "var(--color-cocoa)", marginBottom: "0.5rem", marginTop: 0 }}>Booking Confirmed!</h3>
                   <p style={{ fontFamily: "var(--font-sans)", fontSize: "0.875rem", color: "color-mix(in srgb, var(--color-cocoa) 65%, transparent)", lineHeight: 1.7 }}>
-                    Thank you for choosing Mothering Melanin! Once your PayPal payment is confirmed, Jazzlyn will reach out within 1–2 business days to schedule your first prenatal meeting. We&apos;re so honored to walk this journey with you. 🌿
+                    Thank you for choosing Mothering Melanin! Jazzlyn will reach out within 1–2 business days to schedule your first prenatal meeting. We&apos;re so honored to walk this journey with you. 🌿
                   </p>
                 </div>
               )}

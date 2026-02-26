@@ -117,9 +117,8 @@ export default function HomePage() {
             maxWidth: "12rem",
             display: "none",
           }} className="stat-card">
-            <p style={{ fontFamily: "var(--font-serif)", fontSize: "2rem", color: "var(--color-cocoa)", fontWeight: 500, margin: 0 }}>100+</p>
             <p style={{ fontFamily: "var(--font-sans)", fontSize: "0.75rem", color: "color-mix(in srgb, var(--color-cocoa) 60%, transparent)", marginTop: "0.25rem", lineHeight: 1.4, margin: 0 }}>
-              families supported across Tampa Bay
+              Specifically accept Tricare reimbursement
             </p>
           </div>
         </div>

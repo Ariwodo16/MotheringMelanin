@@ -125,23 +125,23 @@ export default function HomePage() {
         </div>
 
         <div style={{
-  position: "absolute",
-  right: "1.5rem",
-  top: "50%",
-  transform: "translateY(-50%)",
-  borderRadius: "2rem",
-  overflow: "hidden",
-  width: "20rem",
-  height: "25rem",
-}}>
-  <Image
-    src="/logos/Jazzlyn.jpeg"
-    alt="Jazzlyn, founder of Mothering Melanin"
-    fill
-    priority
-    style={{ objectFit: "cover", objectPosition: "center top" }}
-  />
-</div>
+          position: "relative",
+          right: "1.5rem",
+          top: "50%",
+          transform: "translateY(-50%)",
+          borderRadius: "2rem",
+          overflow: "hidden",
+          width: "20rem",
+          height: "25rem",
+        }}>
+          <Image
+            src="/logos/Jazzlyn.jpeg"
+            alt="Jazzlyn, founder of Mothering Melanin"
+            fill
+            priority
+            style={{ objectFit: "cover", objectPosition: "center top" }}
+          />
+        </div>
 
         <style>{`
           @media (min-width: 1024px) {

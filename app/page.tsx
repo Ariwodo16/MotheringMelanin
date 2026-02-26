@@ -135,7 +135,7 @@ export default function HomePage() {
   height: "25rem",
 }}>
   <Image
-    src="/logos/Jazzlyn.png"
+    src="/logos/Jazzlyn.jpeg"
     alt="Jazzlyn, founder of Mothering Melanin"
     fill
     priority

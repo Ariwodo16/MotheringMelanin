@@ -4,6 +4,7 @@ import { LocationStrip, CTASection, StepCard, QuoteBlock } from "@/components/ui
 import ServiceCard from "@/components/ServiceCard";
 import TestimonialCard from "@/components/TestimonialCard";
 import FAQAccordion from "@/components/FAQAccordion";
+import Image from "next/image";
 
 export const metadata: Metadata = {
   title: "Mothering Melanin | Culturally Competent Doula Support in Tampa Bay",
@@ -123,26 +124,24 @@ export default function HomePage() {
           </div>
         </div>
 
-        {/* Hero image placeholder note */}
         <div style={{
-          position: "absolute",
-          right: "1.5rem",
-          top: "50%",
-          transform: "translateY(-50%)",
-          backgroundColor: "var(--color-blush)",
-          borderRadius: "2rem",
-          padding: "2rem",
-          maxWidth: "20rem",
-          textAlign: "center",
-          display: "none",
-        }} className="hero-img-placeholder">
-          <p style={{ fontFamily: "var(--font-sans)", fontSize: "0.625rem", color: "color-mix(in srgb, var(--color-cocoa) 40%, transparent)", letterSpacing: "0.15em", textTransform: "uppercase", marginBottom: "0.5rem" }}>
-            [ Hero Image ]
-          </p>
-          <p style={{ fontFamily: "var(--font-serif)", fontSize: "1rem", color: "color-mix(in srgb, var(--color-cocoa) 50%, transparent)", fontStyle: "italic", margin: 0 }}>
-            Replace with portrait of Jazzlyn<br />800×1000px, warm natural light
-          </p>
-        </div>
+  position: "absolute",
+  right: "1.5rem",
+  top: "50%",
+  transform: "translateY(-50%)",
+  borderRadius: "2rem",
+  overflow: "hidden",
+  width: "20rem",
+  height: "25rem",
+}}>
+  <Image
+    src="/images/Jazzlyn.png"
+    alt="Jazzlyn, founder of Mothering Melanin"
+    fill
+    priority
+    style={{ objectFit: "cover", objectPosition: "center top" }}
+  />
+</div>
 
         <style>{`
           @media (min-width: 1024px) {

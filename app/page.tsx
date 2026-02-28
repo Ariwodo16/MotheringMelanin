@@ -123,16 +123,17 @@ export default function HomePage() {
           </div>
         </div>
 
-        <div style={{
-          position: "absolute",
-          right: "1.5rem",
-          top: "50%",
-          transform: "translateY(-50%)",
-          borderRadius: "2rem",
-          overflow: "hidden",
-          width: "20rem",
-          height: "25rem",
-        }}>
+          <div className="hero-img-placeholder" style={{
+            position: "absolute",
+            right: "1.5rem",
+            top: "50%",
+            transform: "translateY(-50%)",
+            borderRadius: "2rem",
+            overflow: "hidden",
+            width: "20rem",
+            height: "25rem",
+            display: "none",
+          }}>
           <Image
             src="/logos/Jazzlyn.jpeg"
             alt="Jazzlyn, founder of Mothering Melanin"

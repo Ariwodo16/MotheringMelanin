@@ -6,6 +6,8 @@ interface TestimonialCardProps {
 }
 
 export default function TestimonialCard({ quote, name, initials, serviceType }: TestimonialCardProps) {
+  const isLong = quote.length > 200;
+
   return (
     <div style={{
       backgroundColor: "var(--color-blush)",
@@ -26,7 +28,7 @@ export default function TestimonialCard({ quote, name, initials, serviceType }: 
 
       <blockquote style={{
         fontFamily: "var(--font-serif)",
-        fontSize: "auto",
+        fontSize: isLong ? "0.875rem" : "1rem",
         color: "var(--color-cocoa)",
         lineHeight: 1.7,
         fontStyle: "italic",

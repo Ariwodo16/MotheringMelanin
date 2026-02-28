@@ -9,7 +9,6 @@ const navLinks = [
   { label: "About", href: "/about" },
   { label: "Hire a Partner",  href: "/hire-a-doula"  }, 
   { label: "Testimonials", href: "/#testimonials" },
-  { label: "Gallery", href: "/gallery" },
   { label: "FAQ", href: "/#faq" },
   { label: "Contact", href: "/contact" },
 ];

@@ -270,7 +270,7 @@ export default function HomePage() {
             maxWidth: "24rem",
           }}>
             <Image
-              src="/logos/jazzlyn2.jpeg"
+              src="/logos/Jazzlyn2.jpeg"
               alt="Jazzlyn, founder of Mothering Melanin"
               fill
               style={{ objectFit: "cover", objectPosition: "center top" }}

@@ -82,7 +82,7 @@ export function StepCard({ number, title, description }: StepCardProps) {
 }
 
 export function LocationStrip() {
-  const areas = ["Hillsborough", "Pinellas", "Pasco", "Polk", "Manatee", "Virtual Nationwide"];
+  const areas = ["Hillsborough", "Pinellas", "Pasco", "Polk"];
   return (
     <div style={{
       backgroundColor: "color-mix(in srgb, var(--color-cocoa) 5%, transparent)",

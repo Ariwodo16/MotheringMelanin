@@ -111,13 +111,7 @@ export default function AboutPage() {
               The values that guide every birth
             </h2>
           </div>
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(auto-fill, minmax(min(100%, 16rem), 1fr))",
-              gap: "1.25rem",
-            }}
-          >
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(min(100%, 22rem), 1fr))", gap: "1.5rem", alignItems: "stretch" }}>
             {[
               {
                 title: "Culturally Affirming",

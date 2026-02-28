@@ -26,7 +26,7 @@ export default function TestimonialCard({ quote, name, initials, serviceType }: 
 
       <blockquote style={{
         fontFamily: "var(--font-serif)",
-        fontSize: "1.125rem",
+        fontSize: "auto",
         color: "var(--color-cocoa)",
         lineHeight: 1.7,
         fontStyle: "italic",

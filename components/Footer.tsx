@@ -67,7 +67,6 @@ export default function Footer() {
             <p style={{ fontFamily: "var(--font-sans)", fontSize: "0.875rem", color: "color-mix(in srgb, var(--color-cream) 65%, transparent)", lineHeight: 1.7, marginBottom: "1.5rem" }}>
               Hillsborough • Pinellas • Pasco<br />
               Polk •<br />
-              Virtual support available nationwide.
             </p>
             <Link href="/contact#consult" className="btn-terracotta" style={{ fontSize: "0.8rem", padding: "0.6rem 1.25rem" }}>
               Schedule Free Consult

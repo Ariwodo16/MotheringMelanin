@@ -658,7 +658,7 @@ function ContactInner() {
             <div className="card" style={{ padding:"1.75rem" }}>
               <h3 style={{ fontFamily:"var(--font-serif)", fontSize:"1.125rem", color:"var(--color-cocoa)", marginBottom:"0.75rem", marginTop:0 }}>Service Area</h3>
               <p style={{ fontFamily:"var(--font-sans)", fontSize:"0.875rem", color:"color-mix(in srgb, var(--color-cocoa) 65%, transparent)", lineHeight:1.7, margin:0 }}>
-                Hillsborough, Pinellas, Pasco, Polk, and Manatee counties. Virtual support available nationwide.
+                Hillsborough, Pinellas, Pasco, and Polk counties.
               </p>
             </div>
             <div className="card" style={{ padding:"1.75rem" }}>

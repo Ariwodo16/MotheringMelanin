@@ -42,7 +42,7 @@ export default function Footer() {
               {[
                 { label: "Services", href: "/services" },
                 { label: "About Jazzlyn", href: "/about" },
-                { label: "Hire a Doula", href: "/hire-a-doula" },
+                { label: "Hire a Partner", href: "/hire-a-doula" },
                 { label: "Contact", href: "/contact" },
                 { label: "FAQ", href: "/#faq" },
               ].map((link) => (

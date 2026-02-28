@@ -45,7 +45,7 @@ export default function Footer() {
                 { label: "Hire a Partner", href: "/hire-a-doula" },
                 { label: "Contact", href: "/contact" },  
                 { label: "Testimonials", href: "/#testimonials" },
-                { label: "Gallery", href: "/#gallery" },
+                { label: "Gallery", href: "/gallery" },
                 { label: "FAQ", href: "/#faq" },
               ].map((link) => (
                 <li key={link.href}>

@@ -60,7 +60,7 @@ export default function Navbar() {
               href={link.href}
               style={{
                 fontFamily: "var(--font-sans)",
-                fontSize: "0.875rem",
+                fontSize: "1.0rem",
                 color: "color-mix(in srgb, var(--color-cocoa) 75%, transparent)",
                 textDecoration: "none",
                 transition: "color 0.2s",
@@ -145,12 +145,11 @@ export default function Navbar() {
       )}
 
       <style>{`
-        .hidden-mobile { display: none; }
-        .show-mobile { display: flex; }
+        nav.hidden-mobile { display: none !important; }
+        button.show-mobile { display: flex !important; }
         @media (min-width: 1024px) {
-          .hidden-mobile { display: flex; }
-          .show-mobile { display: none; }
-        }
+        nav.hidden-mobile { display: flex !important; }
+        button.show-mobile { display: none !important; }
       `}</style>
     </header>
   );

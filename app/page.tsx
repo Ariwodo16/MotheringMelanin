@@ -52,12 +52,12 @@ export default function HomePage() {
       {/* ── HERO ── */}
       <section style={{
         position: "relative",
-        minHeight: "100svh",
+        minHeight: "auto",
         display: "flex",
         alignItems: "center",
         backgroundColor: "var(--color-cream)",
         overflow: "hidden",
-        paddingTop: "5rem",
+        paddingTop: "4rem",
       }}>
         {/* Radial gradient accent */}
         <div style={{
@@ -65,11 +65,11 @@ export default function HomePage() {
           background: "radial-gradient(ellipse 70% 70% at 80% 40%, color-mix(in srgb, var(--color-terracotta) 12%, transparent) 0%, transparent 70%)",
         }} aria-hidden="true" />
 
-        <div className="container-wide" style={{ width: "100%", display: "grid", gap: "3rem", alignItems: "center", padding: "5rem 0" }}>
+        <div className="container-wide" style={{ width: "100%", display: "grid", gap: "3rem", alignItems: "center", padding: "2.5rem 0" }}>
           <div style={{ maxWidth: "42rem" }}>
             <span className="section-label" style={{ marginBottom: "1.25rem" }}>Doula & Birth Support</span>
 
-            <h1 className="text-display-xl" style={{ color: "var(--color-cocoa)", marginBottom: "1.5rem", marginTop: "0.75rem" }}>
+            <h1 className="text-display-xl" style={{ color: "var(--color-cocoa)", marginBottom: "1rem", marginTop: "0.75rem" }}>
               You deserve to feel{" "}
               <em style={{ color: "var(--color-terracotta)", fontStyle: "italic" }}>held</em>,
               <br />heard, and{" "}
@@ -82,7 +82,7 @@ export default function HomePage() {
             </p>
 
             {/* Trust chips */}
-            <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem", marginBottom: "2.5rem" }}>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem", marginBottom: "1.5rem" }}>
               {["Trauma-informed", "Culturally competent", "Evidence-based support"].map((chip) => (
                 <span key={chip} style={{
                   fontFamily: "var(--font-sans)",
@@ -124,7 +124,7 @@ export default function HomePage() {
         </div>
 
         <div style={{
-          position: "relative",
+          position: "absolute",
           right: "1.5rem",
           top: "50%",
           transform: "translateY(-50%)",
@@ -264,21 +264,16 @@ export default function HomePage() {
           <div style={{
             aspectRatio: "3/4",
             borderRadius: "2rem",
-            backgroundColor: "var(--color-blush)",
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            justifyContent: "center",
-            textAlign: "center",
-            padding: "2rem",
+            overflow: "hidden",
+            position: "relative",
             maxWidth: "24rem",
           }}>
-            <p style={{ fontFamily: "var(--font-sans)", fontSize: "0.625rem", color: "color-mix(in srgb, var(--color-cocoa) 40%, transparent)", letterSpacing: "0.15em", textTransform: "uppercase", marginBottom: "0.5rem" }}>
-              [ Photo Placeholder ]
-            </p>
-            <p style={{ fontFamily: "var(--font-serif)", fontSize: "1.125rem", color: "color-mix(in srgb, var(--color-cocoa) 50%, transparent)", fontStyle: "italic", margin: 0 }}>
-              Warm portrait of Jazzlyn<br />3:4 ratio, natural light
-            </p>
+            <Image
+              src="/logos/jazzlyn2.jpeg"
+              alt="Jazzlyn, founder of Mothering Melanin"
+              fill
+              style={{ objectFit: "cover", objectPosition: "center top" }}
+            />
           </div>
 
           <div>

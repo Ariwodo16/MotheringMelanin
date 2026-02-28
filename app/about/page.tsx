@@ -69,7 +69,7 @@ export default function AboutPage() {
       {/* STORY */}
       <section
         className="section-padding"
-        style={{ paddingTop: "3rem", paddingBottom: "3rem", backgroundColor: "var(--color-blush)" }}
+        style={{ paddingTop: "rem", paddingBottom: "3rem", backgroundColor: "var(--color-blush)" }}
       >
         <div className="container-narrow">
           <span className="section-label" style={{ marginBottom: "1.25rem" }}>

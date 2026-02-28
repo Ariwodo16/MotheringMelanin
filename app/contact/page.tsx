@@ -3,6 +3,7 @@
 import { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 
+// ── Types ─────────────────────────────────────────────────────────────────────
 interface Package {
   id: string;
   name: string;
@@ -14,6 +15,18 @@ interface Package {
   includes: string[];
 }
 
+interface AddressData { country: string; line1: string; line2: string; city: string; state: string; zip: string; }
+interface IntakeData {
+  firstName: string; lastName: string; age: string; pronouns: string;
+  supportFirstName: string; supportLastName: string; supportPronouns: string;
+  email: string; phone: string; dueDate: string;
+  providerFirstName: string; providerLastName: string;
+  homeAddress: AddressData; birthingAddress: AddressData;
+  conditions: string[]; abuseHistory: string[]; tokophobia: string;
+  additionalInfo: string; referral: string;
+}
+
+// ── Constants ─────────────────────────────────────────────────────────────────
 const PACKAGES: Package[] = [
   {
     id: "consultation",
@@ -31,7 +44,7 @@ const PACKAGES: Package[] = [
     id: "blessed-beginnings",
     name: "Blessed Beginnings",
     tagline: "A prayer-filled start for new families seeking holistic support",
-    price: 1750, priceDisplay: "$1,750", isFree: false, badge: "Most Popular",
+    price: 0.50, priceDisplay: "$0.50", isFree: false, badge: "Most Popular",
     includes: [
       "3 prenatal meetings — birth plan, coping skills & relationship building",
       "Unlimited text & phone support from moment of hire",
@@ -86,18 +99,7 @@ const REFERRAL_OPTIONS = [
   "Referral from Friend or Family","Provider Referral","Community Event","Other",
 ];
 
-interface AddressData { country: string; line1: string; line2: string; city: string; state: string; zip: string; }
 const emptyAddress: AddressData = { country:"US", line1:"", line2:"", city:"", state:"", zip:"" };
-
-interface IntakeData {
-  firstName: string; lastName: string; age: string; pronouns: string;
-  supportFirstName: string; supportLastName: string; supportPronouns: string;
-  email: string; phone: string; dueDate: string;
-  providerFirstName: string; providerLastName: string;
-  homeAddress: AddressData; birthingAddress: AddressData;
-  conditions: string[]; abuseHistory: string[]; tokophobia: string;
-  additionalInfo: string; referral: string;
-}
 const emptyIntake: IntakeData = {
   firstName:"", lastName:"", age:"", pronouns:"",
   supportFirstName:"", supportLastName:"", supportPronouns:"",
@@ -108,6 +110,84 @@ const emptyIntake: IntakeData = {
   additionalInfo:"", referral:"",
 };
 
+// ── Shared styles ─────────────────────────────────────────────────────────────
+const inp: React.CSSProperties = {
+  width:"100%", padding:"0.75rem 1rem",
+  border:"1px solid color-mix(in srgb, var(--color-cocoa) 15%, transparent)",
+  borderRadius:"0.75rem", fontFamily:"var(--font-sans)", fontSize:"0.875rem",
+  backgroundColor:"white", color:"var(--color-cocoa)", outline:"none",
+  transition:"border-color 0.2s", boxSizing:"border-box",
+};
+const lbl: React.CSSProperties = {
+  display:"block", fontFamily:"var(--font-sans)", fontSize:"0.875rem",
+  fontWeight:500, color:"var(--color-cocoa)", marginBottom:"0.375rem",
+};
+const secHead: React.CSSProperties = {
+  fontFamily:"var(--font-serif)", fontSize:"1.125rem", fontWeight:500,
+  color:"var(--color-cocoa)", margin:"0 0 1rem", paddingBottom:"0.5rem",
+  borderBottom:"1px solid color-mix(in srgb, var(--color-cocoa) 10%, transparent)",
+};
+
+// ── Sub-components ────────────────────────────────────────────────────────────
+function Field({ label, required, hint, children }: {
+  label: string; required?: boolean; hint?: string; children: React.ReactNode;
+}) {
+  return (
+    <div>
+      <label style={lbl}>
+        {label} {required && <span style={{ color:"var(--color-terracotta)" }}>*</span>}
+      </label>
+      {hint && <p style={{ fontFamily:"var(--font-sans)", fontSize:"0.75rem", color:"color-mix(in srgb, var(--color-cocoa) 50%, transparent)", margin:"0 0 0.375rem", lineHeight:1.5 }}>{hint}</p>}
+      {children}
+    </div>
+  );
+}
+
+function AddressBlock({ section, label, hint, intake, updateAddress }: {
+  section: "homeAddress"|"birthingAddress";
+  label: string;
+  hint?: string;
+  intake: IntakeData;
+  updateAddress: (section: "homeAddress"|"birthingAddress", field: keyof AddressData, value: string) => void;
+}) {
+  const addr = intake[section];
+  return (
+    <div style={{ display:"flex", flexDirection:"column", gap:"0.875rem" }}>
+      <h4 style={secHead}>{label}</h4>
+      {hint && <p style={{ fontFamily:"var(--font-sans)", fontSize:"0.75rem", color:"color-mix(in srgb, var(--color-cocoa) 50%, transparent)", margin:"-0.5rem 0 0", lineHeight:1.5 }}>{hint}</p>}
+      <Field label="Country">
+        <select style={inp} value={addr.country} onChange={(e) => updateAddress(section,"country",e.target.value)}>
+          <option value="US">United States</option>
+          <option value="CA">Canada</option>
+          <option value="GB">United Kingdom</option>
+          <option value="other">Other</option>
+        </select>
+      </Field>
+      <Field label="Address Line 1" required>
+        <input style={inp} value={addr.line1} onChange={(e) => updateAddress(section,"line1",e.target.value)} placeholder="Street address" />
+      </Field>
+      <Field label="Address Line 2">
+        <input style={inp} value={addr.line2} onChange={(e) => updateAddress(section,"line2",e.target.value)} placeholder="Apt, suite, unit (optional)" />
+      </Field>
+      <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:"0.875rem" }}>
+        <Field label="City" required>
+          <input style={inp} value={addr.city} onChange={(e) => updateAddress(section,"city",e.target.value)} placeholder="City" />
+        </Field>
+        <Field label="State" required>
+          <select style={inp} value={addr.state} onChange={(e) => updateAddress(section,"state",e.target.value)}>
+            <option value="">Select state...</option>
+            {US_STATES.map((s) => <option key={s} value={s}>{s}</option>)}
+          </select>
+        </Field>
+      </div>
+      <Field label="ZIP Code" required>
+        <input style={inp} value={addr.zip} onChange={(e) => updateAddress(section,"zip",e.target.value)} placeholder="ZIP code" />
+      </Field>
+    </div>
+  );
+}
+
+// ── Main component ────────────────────────────────────────────────────────────
 type Step = "select"|"intake"|"checkout"|"success";
 
 function ContactInner() {
@@ -130,12 +210,15 @@ function ContactInner() {
   function update(field: keyof IntakeData, value: string) {
     setIntake((p) => ({ ...p, [field]: value }));
   }
+
   function updateAddress(section: "homeAddress"|"birthingAddress", field: keyof AddressData, value: string) {
     setIntake((p) => ({ ...p, [section]: { ...p[section], [field]: value } }));
   }
+
   function toggleCondition(c: string) {
     setIntake((p) => ({ ...p, conditions: p.conditions.includes(c) ? p.conditions.filter((x) => x!==c) : [...p.conditions, c] }));
   }
+
   function toggleAbuse(a: string) {
     setIntake((p) => ({ ...p, abuseHistory: p.abuseHistory.includes(a) ? p.abuseHistory.filter((x) => x!==a) : [...p.abuseHistory, a] }));
   }
@@ -150,6 +233,24 @@ function ContactInner() {
     if (!intake.homeAddress.line1.trim()||!intake.homeAddress.city.trim()||!intake.homeAddress.state||!intake.homeAddress.zip.trim()) { alert("Please complete your home address."); return false; }
     if (!intake.birthingAddress.line1.trim()||!intake.birthingAddress.city.trim()||!intake.birthingAddress.state||!intake.birthingAddress.zip.trim()) { alert("Please complete your birthing location address."); return false; }
     return true;
+  }
+
+  async function submitIntake() {
+    if (!validateIntake() || !selected) return;
+    try {
+      await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ intake, packageName: selected.name, packagePrice: selected.priceDisplay }),
+      });
+    } catch {
+      console.error("Intake email failed");
+    }
+    if (selected.isFree) {
+      setStep("success");
+    } else {
+      setStep("checkout");
+    }
   }
 
   async function handleStripeCheckout() {
@@ -179,90 +280,11 @@ function ContactInner() {
     }
   }
 
-  const inp: React.CSSProperties = {
-    width:"100%", padding:"0.75rem 1rem",
-    border:"1px solid color-mix(in srgb, var(--color-cocoa) 15%, transparent)",
-    borderRadius:"0.75rem", fontFamily:"var(--font-sans)", fontSize:"0.875rem",
-    backgroundColor:"white", color:"var(--color-cocoa)", outline:"none",
-    transition:"border-color 0.2s", boxSizing:"border-box" as const,
-  };
-  const lbl: React.CSSProperties = {
-    display:"block", fontFamily:"var(--font-sans)", fontSize:"0.875rem",
-    fontWeight:500, color:"var(--color-cocoa)", marginBottom:"0.375rem",
-  };
-  const secHead: React.CSSProperties = {
-    fontFamily:"var(--font-serif)", fontSize:"1.125rem", fontWeight:500,
-    color:"var(--color-cocoa)", margin:"0 0 1rem", paddingBottom:"0.5rem",
-    borderBottom:"1px solid color-mix(in srgb, var(--color-cocoa) 10%, transparent)",
-  };
-  const req = <span style={{ color:"var(--color-terracotta)" }}>*</span>;
-
-  function Field({ label, required, hint, children }: { label:string; required?:boolean; hint?:string; children:React.ReactNode }) {
-    return (
-      <div>
-        <label style={lbl}>{label} {required&&req}</label>
-        {hint&&<p style={{ fontFamily:"var(--font-sans)", fontSize:"0.75rem", color:"color-mix(in srgb, var(--color-cocoa) 50%, transparent)", margin:"0 0 0.375rem", lineHeight:1.5 }}>{hint}</p>}
-        {children}
-      </div>
-    );
-  }
-
-  function AddressBlock({ section, label, hint }: { section:"homeAddress"|"birthingAddress"; label:string; hint?:string }) {
-    const addr = intake[section];
-    return (
-      <div style={{ display:"flex", flexDirection:"column", gap:"0.875rem" }}>
-        <h4 style={secHead}>{label}</h4>
-        {hint&&<p style={{ fontFamily:"var(--font-sans)", fontSize:"0.75rem", color:"color-mix(in srgb, var(--color-cocoa) 50%, transparent)", margin:"-0.5rem 0 0", lineHeight:1.5 }}>{hint}</p>}
-        <Field label="Country">
-          <select style={inp} value={addr.country} onChange={(e)=>updateAddress(section,"country",e.target.value)}>
-            <option value="US">United States</option>
-            <option value="CA">Canada</option>
-            <option value="GB">United Kingdom</option>
-            <option value="other">Other</option>
-          </select>
-        </Field>
-        <Field label="Address Line 1" required><input style={inp} value={addr.line1} onChange={(e)=>updateAddress(section,"line1",e.target.value)} placeholder="Street address" /></Field>
-        <Field label="Address Line 2"><input style={inp} value={addr.line2} onChange={(e)=>updateAddress(section,"line2",e.target.value)} placeholder="Apt, suite, unit (optional)" /></Field>
-        <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:"0.875rem" }}>
-          <Field label="City" required><input style={inp} value={addr.city} onChange={(e)=>updateAddress(section,"city",e.target.value)} placeholder="City" /></Field>
-          <Field label="State" required>
-            <select style={inp} value={addr.state} onChange={(e)=>updateAddress(section,"state",e.target.value)}>
-              <option value="">Select state...</option>
-              {US_STATES.map((s)=><option key={s} value={s}>{s}</option>)}
-            </select>
-          </Field>
-        </div>
-        <Field label="ZIP Code" required><input style={inp} value={addr.zip} onChange={(e)=>updateAddress(section,"zip",e.target.value)} placeholder="ZIP code" /></Field>
-      </div>
-    );
-  }
-
   const isFree = selected?.isFree ?? false;
-
-  function IncludesList({ pkg, alwaysShow }: { pkg: Package; alwaysShow?: boolean }) {
-    const isHov = hoveredId === pkg.id;
-    return (
-      <ul style={{
-        listStyle:"none", padding:0, margin:"0.5rem 0 0",
-        display:"flex", flexDirection:"column", gap:"0.375rem",
-        maxHeight: alwaysShow||isHov ? "30rem" : "0",
-        overflow:"hidden",
-        transition:"max-height 0.3s ease",
-      }}>
-        {pkg.includes.map((item) => (
-          <li key={item} style={{ display:"flex", alignItems:"flex-start", gap:"0.5rem" }}>
-            <svg style={{ width:"0.875rem", height:"0.875rem", flexShrink:0, marginTop:"3px", color: pkg.isFree ? "#7A8C6E" : "var(--color-terracotta)", fill:"currentColor" }} viewBox="0 0 20 20" aria-hidden="true">
-              <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-            </svg>
-            <span style={{ fontFamily:"var(--font-sans)", fontSize:"0.8rem", lineHeight:1.6, color:"color-mix(in srgb, var(--color-cocoa) 70%, transparent)" }}>{item}</span>
-          </li>
-        ))}
-      </ul>
-    );
-  }
 
   return (
     <>
+      {/* PAGE HEADER */}
       <section className="section-padding" style={{ paddingTop:"8rem", backgroundColor:"var(--color-cream)" }}>
         <div className="container-narrow" style={{ textAlign:"center" }}>
           <span className="section-label" style={{ marginBottom:"1rem" }}>Book Your Package</span>
@@ -311,15 +333,12 @@ function ContactInner() {
                           borderStyle: pkg.isFree ? (isSel ? "solid" : "dashed") : "solid",
                           borderColor: isSel
                             ? (pkg.isFree ? "#7A8C6E" : "var(--color-terracotta)")
-                            : isHov
-                            ? "color-mix(in srgb, var(--color-cocoa) 35%, transparent)"
+                            : isHov ? "color-mix(in srgb, var(--color-cocoa) 35%, transparent)"
                             : "color-mix(in srgb, var(--color-cocoa) 12%, transparent)",
-                          borderRadius:"0.75rem",
-                          padding:"1.25rem 1.5rem",
+                          borderRadius:"0.75rem", padding:"1.25rem 1.5rem",
                           cursor:"pointer",
                           backgroundColor: isSel ? "white" : isHov ? "color-mix(in srgb, var(--color-cream) 80%, white)" : "color-mix(in srgb, var(--color-cream) 60%, white)",
-                          transition:"all 0.2s",
-                          position:"relative",
+                          transition:"all 0.2s", position:"relative",
                         }}
                       >
                         <div style={{ position:"absolute", top:"1rem", right:"1rem", width:"20px", height:"20px", borderRadius:"50%", backgroundColor: isSel?(pkg.isFree?"#7A8C6E":"var(--color-terracotta)"):"transparent", border:`2px solid ${isSel?(pkg.isFree?"#7A8C6E":"var(--color-terracotta)"):"color-mix(in srgb, var(--color-cocoa) 20%, transparent)"}`, display:"flex", alignItems:"center", justifyContent:"center", fontSize:"0.65rem", color:"white", transition:"all 0.2s" }}>
@@ -339,17 +358,7 @@ function ContactInner() {
 
                         <p style={{ fontFamily:"var(--font-sans)", fontSize:"0.8rem", fontStyle:"italic", color:"color-mix(in srgb, var(--color-cocoa) 55%, transparent)", margin:0, lineHeight:1.5 }}>{pkg.tagline}</p>
 
-                        {/* Hover-expand on desktop, always visible on mobile */}
-                        <ul
-                          className="pkg-includes"
-                          style={{
-                            listStyle:"none", padding:0, margin:"0.5rem 0 0",
-                            display:"flex", flexDirection:"column", gap:"0.375rem",
-                            maxHeight: isHov ? "30rem" : "0",
-                            overflow:"hidden",
-                            transition:"max-height 0.3s ease",
-                          }}
-                        >
+                        <ul className="pkg-includes" style={{ listStyle:"none", padding:0, margin:"0.5rem 0 0", display:"flex", flexDirection:"column", gap:"0.375rem", maxHeight: isHov ? "30rem" : "0", overflow:"hidden", transition:"max-height 0.3s ease" }}>
                           {pkg.includes.map((item) => (
                             <li key={item} style={{ display:"flex", alignItems:"flex-start", gap:"0.5rem" }}>
                               <svg style={{ width:"0.875rem", height:"0.875rem", flexShrink:0, marginTop:"3px", color: pkg.isFree?"#7A8C6E":"var(--color-terracotta)", fill:"currentColor" }} viewBox="0 0 20 20" aria-hidden="true">
@@ -370,8 +379,20 @@ function ContactInner() {
                   })}
                 </div>
 
-                <button disabled={!selected} onClick={()=>setStep("intake")} className="btn-terracotta" style={{ justifyContent:"center", fontSize:"1rem", padding:"1rem", width:"100%", opacity:!selected?0.4:1, cursor:!selected?"not-allowed":"pointer" }}>
-                  Continue to Intake Form →
+                <button
+                  disabled={!selected}
+                  onClick={() => {
+                    if (!selected) return;
+                    if (selected.isFree) {
+                      window.open("https://motheringmelanin.as.me", "_blank");
+                    } else {
+                      setStep("intake");
+                    }
+                  }}
+                  className="btn-terracotta"
+                  style={{ justifyContent:"center", fontSize:"1rem", padding:"1rem", width:"100%", opacity:!selected?0.4:1, cursor:!selected?"not-allowed":"pointer" }}
+                >
+                  {selected?.isFree ? "Schedule Free Consultation →" : "Continue to Intake Form →"}
                 </button>
                 <p style={{ fontFamily:"var(--font-sans)", fontSize:"0.75rem", color:"color-mix(in srgb, var(--color-cocoa) 40%, transparent)", textAlign:"center", margin:"0.875rem 0 0" }}>
                   Or use Acuity on the right to book a free discovery call directly.
@@ -382,7 +403,9 @@ function ContactInner() {
             {/* ── INTAKE ── */}
             {step==="intake" && selected && (
               <>
-                <button onClick={()=>setStep("select")} style={{ background:"none", border:"none", cursor:"pointer", fontFamily:"var(--font-sans)", fontSize:"0.8rem", color:"color-mix(in srgb, var(--color-cocoa) 55%, transparent)", display:"flex", alignItems:"center", gap:"6px", marginBottom:"1.25rem", padding:0 }}>← Back to Packages</button>
+                <button onClick={() => setStep("select")} style={{ background:"none", border:"none", cursor:"pointer", fontFamily:"var(--font-sans)", fontSize:"0.8rem", color:"color-mix(in srgb, var(--color-cocoa) 55%, transparent)", display:"flex", alignItems:"center", gap:"6px", marginBottom:"1.25rem", padding:0 }}>
+                  ← Back to Packages
+                </button>
 
                 <div style={{ backgroundColor:"var(--color-cocoa)", borderRadius:"0.75rem", padding:"1rem 1.5rem", marginBottom:"1.5rem", display:"flex", justifyContent:"space-between", alignItems:"center", flexWrap:"wrap", gap:"0.5rem" }}>
                   <span style={{ fontFamily:"var(--font-serif)", fontSize:"1.05rem", color:"white" }}>{selected.name}</span>
@@ -395,88 +418,117 @@ function ContactInner() {
                 </p>
 
                 <div style={{ display:"flex", flexDirection:"column", gap:"2rem" }}>
+
+                  {/* Birthing Person */}
                   <div style={{ display:"flex", flexDirection:"column", gap:"0.875rem" }}>
                     <h3 style={secHead}>Birthing Person</h3>
                     <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:"0.875rem" }}>
-                      <Field label="First Name" required><input style={inp} value={intake.firstName} onChange={(e)=>update("firstName",e.target.value)} placeholder="First name" /></Field>
-                      <Field label="Last Name" required><input style={inp} value={intake.lastName} onChange={(e)=>update("lastName",e.target.value)} placeholder="Last name" /></Field>
+                      <Field label="First Name" required>
+                        <input style={inp} value={intake.firstName} onChange={(e) => update("firstName", e.target.value)} placeholder="First name" />
+                      </Field>
+                      <Field label="Last Name" required>
+                        <input style={inp} value={intake.lastName} onChange={(e) => update("lastName", e.target.value)} placeholder="Last name" />
+                      </Field>
                     </div>
                     <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:"0.875rem" }}>
-                      <Field label="Age" required><input style={inp} type="number" min="0" max="99" value={intake.age} onChange={(e)=>update("age",e.target.value)} placeholder="Age" /></Field>
+                      <Field label="Age" required>
+                        <input style={inp} type="number" min="0" max="99" value={intake.age} onChange={(e) => update("age", e.target.value)} placeholder="Age" />
+                      </Field>
                       <Field label="Pronouns">
-                        <select style={inp} value={intake.pronouns} onChange={(e)=>update("pronouns",e.target.value)}>
+                        <select style={inp} value={intake.pronouns} onChange={(e) => update("pronouns", e.target.value)}>
                           <option value="">Select an option</option>
-                          {PRONOUNS.map((p)=><option key={p} value={p}>{p}</option>)}
+                          {PRONOUNS.map((p) => <option key={p} value={p}>{p}</option>)}
                         </select>
                       </Field>
                     </div>
                   </div>
 
+                  {/* Support Person */}
                   <div style={{ display:"flex", flexDirection:"column", gap:"0.875rem" }}>
                     <h3 style={secHead}>Birthing Partner / Support Person</h3>
                     <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:"0.875rem" }}>
-                      <Field label="First Name"><input style={inp} value={intake.supportFirstName} onChange={(e)=>update("supportFirstName",e.target.value)} placeholder="First name" /></Field>
-                      <Field label="Last Name"><input style={inp} value={intake.supportLastName} onChange={(e)=>update("supportLastName",e.target.value)} placeholder="Last name" /></Field>
+                      <Field label="First Name">
+                        <input style={inp} value={intake.supportFirstName} onChange={(e) => update("supportFirstName", e.target.value)} placeholder="First name" />
+                      </Field>
+                      <Field label="Last Name">
+                        <input style={inp} value={intake.supportLastName} onChange={(e) => update("supportLastName", e.target.value)} placeholder="Last name" />
+                      </Field>
                     </div>
                     <Field label="Pronouns">
-                      <select style={inp} value={intake.supportPronouns} onChange={(e)=>update("supportPronouns",e.target.value)}>
+                      <select style={inp} value={intake.supportPronouns} onChange={(e) => update("supportPronouns", e.target.value)}>
                         <option value="">Select an option</option>
-                        {PRONOUNS.map((p)=><option key={p} value={p}>{p}</option>)}
+                        {PRONOUNS.map((p) => <option key={p} value={p}>{p}</option>)}
                       </select>
                     </Field>
                   </div>
 
+                  {/* Contact */}
                   <div style={{ display:"flex", flexDirection:"column", gap:"0.875rem" }}>
                     <h3 style={secHead}>Contact Information</h3>
-                    <Field label="Email Address" required><input style={inp} type="email" value={intake.email} onChange={(e)=>update("email",e.target.value)} placeholder="your@email.com" /></Field>
-                    <Field label="Phone Number" required><input style={inp} type="tel" value={intake.phone} onChange={(e)=>update("phone",e.target.value)} placeholder="(813) 000-0000" /></Field>
-                    <Field label="Estimated Due Date" required><input style={inp} type="date" value={intake.dueDate} onChange={(e)=>update("dueDate",e.target.value)} /></Field>
+                    <Field label="Email Address" required>
+                      <input style={inp} type="email" value={intake.email} onChange={(e) => update("email", e.target.value)} placeholder="your@email.com" />
+                    </Field>
+                    <Field label="Phone Number" required>
+                      <input style={inp} type="tel" value={intake.phone} onChange={(e) => update("phone", e.target.value)} placeholder="(813) 000-0000" />
+                    </Field>
+                    <Field label="Estimated Due Date" required>
+                      <input style={inp} type="date" value={intake.dueDate} onChange={(e) => update("dueDate", e.target.value)} />
+                    </Field>
                   </div>
 
+                  {/* Provider */}
                   <div style={{ display:"flex", flexDirection:"column", gap:"0.875rem" }}>
                     <h3 style={secHead}>Health Care Provider</h3>
                     <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:"0.875rem" }}>
-                      <Field label="First Name" required><input style={inp} value={intake.providerFirstName} onChange={(e)=>update("providerFirstName",e.target.value)} placeholder="First name" /></Field>
-                      <Field label="Last Name" required><input style={inp} value={intake.providerLastName} onChange={(e)=>update("providerLastName",e.target.value)} placeholder="Last name" /></Field>
+                      <Field label="First Name" required>
+                        <input style={inp} value={intake.providerFirstName} onChange={(e) => update("providerFirstName", e.target.value)} placeholder="First name" />
+                      </Field>
+                      <Field label="Last Name" required>
+                        <input style={inp} value={intake.providerLastName} onChange={(e) => update("providerLastName", e.target.value)} placeholder="Last name" />
+                      </Field>
                     </div>
                   </div>
 
-                  <AddressBlock section="homeAddress" label="Home Address" hint="This is for prenatal and postpartum appointments." />
-                  <AddressBlock section="birthingAddress" label="Birthing Location" />
+                  {/* Addresses */}
+                  <AddressBlock section="homeAddress" label="Home Address" hint="This is for prenatal and postpartum appointments." intake={intake} updateAddress={updateAddress} />
+                  <AddressBlock section="birthingAddress" label="Birthing Location" intake={intake} updateAddress={updateAddress} />
 
+                  {/* Conditions */}
                   <div style={{ display:"flex", flexDirection:"column", gap:"0.875rem" }}>
                     <h3 style={secHead}>Pre-existing Conditions / Injuries</h3>
                     <p style={{ fontFamily:"var(--font-sans)", fontSize:"0.75rem", color:"color-mix(in srgb, var(--color-cocoa) 50%, transparent)", margin:"-0.25rem 0 0", lineHeight:1.5 }}>Select all that apply. Kept strictly confidential.</p>
                     <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:"0.5rem" }}>
-                      {CONDITIONS.map((c)=>(
+                      {CONDITIONS.map((c) => (
                         <label key={c} style={{ display:"flex", alignItems:"center", gap:"0.5rem", cursor:"pointer", fontFamily:"var(--font-sans)", fontSize:"0.875rem", color:"color-mix(in srgb, var(--color-cocoa) 75%, transparent)" }}>
-                          <input type="checkbox" checked={intake.conditions.includes(c)} onChange={()=>toggleCondition(c)} style={{ accentColor:"var(--color-terracotta)", width:"16px", height:"16px", flexShrink:0 }} />
+                          <input type="checkbox" checked={intake.conditions.includes(c)} onChange={() => toggleCondition(c)} style={{ accentColor:"var(--color-terracotta)", width:"16px", height:"16px", flexShrink:0 }} />
                           {c}
                         </label>
                       ))}
                     </div>
                   </div>
 
+                  {/* Abuse history */}
                   <div style={{ display:"flex", flexDirection:"column", gap:"0.875rem" }}>
                     <h3 style={secHead}>History of Abuse</h3>
                     <p style={{ fontFamily:"var(--font-sans)", fontSize:"0.75rem", color:"color-mix(in srgb, var(--color-cocoa) 50%, transparent)", margin:"-0.25rem 0 0", lineHeight:1.5 }}>Shared so Jazzlyn can provide the most informed and sensitive support.</p>
                     <div style={{ display:"flex", flexDirection:"column", gap:"0.5rem" }}>
-                      {HISTORY_OF_ABUSE.map((a)=>(
+                      {HISTORY_OF_ABUSE.map((a) => (
                         <label key={a} style={{ display:"flex", alignItems:"center", gap:"0.5rem", cursor:"pointer", fontFamily:"var(--font-sans)", fontSize:"0.875rem", color:"color-mix(in srgb, var(--color-cocoa) 75%, transparent)" }}>
-                          <input type="checkbox" checked={intake.abuseHistory.includes(a)} onChange={()=>toggleAbuse(a)} style={{ accentColor:"var(--color-terracotta)", width:"16px", height:"16px", flexShrink:0 }} />
+                          <input type="checkbox" checked={intake.abuseHistory.includes(a)} onChange={() => toggleAbuse(a)} style={{ accentColor:"var(--color-terracotta)", width:"16px", height:"16px", flexShrink:0 }} />
                           {a}
                         </label>
                       ))}
                     </div>
                   </div>
 
+                  {/* Tokophobia */}
                   <div style={{ display:"flex", flexDirection:"column", gap:"0.875rem" }}>
                     <h3 style={secHead}>Fear of Childbirth</h3>
                     <Field label="Do you have tokophobia / fear of childbirth?">
                       <div style={{ display:"flex", gap:"1.5rem" }}>
-                        {["Yes","No"].map((opt)=>(
+                        {["Yes","No"].map((opt) => (
                           <label key={opt} style={{ display:"flex", alignItems:"center", gap:"0.5rem", cursor:"pointer", fontFamily:"var(--font-sans)", fontSize:"0.875rem", color:"color-mix(in srgb, var(--color-cocoa) 75%, transparent)" }}>
-                            <input type="radio" name="tokophobia" value={opt} checked={intake.tokophobia===opt} onChange={()=>update("tokophobia",opt)} style={{ accentColor:"var(--color-terracotta)", width:"16px", height:"16px" }} />
+                            <input type="radio" name="tokophobia" value={opt} checked={intake.tokophobia===opt} onChange={() => update("tokophobia", opt)} style={{ accentColor:"var(--color-terracotta)", width:"16px", height:"16px" }} />
                             {opt}
                           </label>
                         ))}
@@ -484,32 +536,34 @@ function ContactInner() {
                     </Field>
                   </div>
 
+                  {/* Additional info */}
                   <div style={{ display:"flex", flexDirection:"column", gap:"0.875rem" }}>
                     <h3 style={secHead}>Anything Else?</h3>
                     <Field label="Anything else you would like me to know?">
-                      <textarea rows={4} style={{ ...inp, resize:"none" }} value={intake.additionalInfo} onChange={(e)=>update("additionalInfo",e.target.value)} placeholder="Share anything else that would help Jazzlyn support you best..." />
+                      <textarea rows={4} style={{ ...inp, resize:"none" }} value={intake.additionalInfo} onChange={(e) => update("additionalInfo", e.target.value)} placeholder="Share anything else that would help Jazzlyn support you best..." />
                     </Field>
                   </div>
 
+                  {/* Referral */}
                   <div style={{ display:"flex", flexDirection:"column", gap:"0.875rem" }}>
                     <h3 style={secHead}>How Did You Find Us?</h3>
                     <Field label="How did you hear about Mothering Melanin?">
-                      <select style={inp} value={intake.referral} onChange={(e)=>update("referral",e.target.value)}>
+                      <select style={inp} value={intake.referral} onChange={(e) => update("referral", e.target.value)}>
                         <option value="">Select an option</option>
-                        {REFERRAL_OPTIONS.map((r)=><option key={r} value={r}>{r}</option>)}
+                        {REFERRAL_OPTIONS.map((r) => <option key={r} value={r}>{r}</option>)}
                       </select>
                     </Field>
                   </div>
 
-                  {isFree ? (
-                    <button onClick={()=>{ if(validateIntake()) setStep("success"); }} className="btn-terracotta" style={{ justifyContent:"center", fontSize:"1rem", padding:"1rem", backgroundColor:"#7A8C6E" }}>
-                      Confirm Consultation Request →
-                    </button>
-                  ) : (
-                    <button onClick={()=>{ if(validateIntake()) setStep("checkout"); }} className="btn-terracotta" style={{ justifyContent:"center", fontSize:"1rem", padding:"1rem" }}>
-                      Continue to Checkout →
-                    </button>
-                  )}
+                  {/* SUBMIT — sends email then routes to checkout or success */}
+                  <button
+                    onClick={submitIntake}
+                    className="btn-terracotta"
+                    style={{ justifyContent:"center", fontSize:"1rem", padding:"1rem" }}
+                  >
+                    Continue to Checkout →
+                  </button>
+
                   <p style={{ fontFamily:"var(--font-sans)", fontSize:"0.75rem", color:"color-mix(in srgb, var(--color-cocoa) 40%, transparent)", textAlign:"center", margin:0, lineHeight:1.6 }}>
                     Your information is private and will never be shared outside of your care.
                   </p>
@@ -520,7 +574,9 @@ function ContactInner() {
             {/* ── CHECKOUT ── */}
             {step==="checkout" && selected && (
               <>
-                <button onClick={()=>setStep("intake")} style={{ background:"none", border:"none", cursor:"pointer", fontFamily:"var(--font-sans)", fontSize:"0.8rem", color:"color-mix(in srgb, var(--color-cocoa) 55%, transparent)", display:"flex", alignItems:"center", gap:"6px", marginBottom:"1.25rem", padding:0 }}>← Back to Intake</button>
+                <button onClick={() => setStep("intake")} style={{ background:"none", border:"none", cursor:"pointer", fontFamily:"var(--font-sans)", fontSize:"0.8rem", color:"color-mix(in srgb, var(--color-cocoa) 55%, transparent)", display:"flex", alignItems:"center", gap:"6px", marginBottom:"1.25rem", padding:0 }}>
+                  ← Back to Intake
+                </button>
 
                 <div style={{ backgroundColor:"var(--color-cocoa)", borderRadius:"0.75rem", padding:"1rem 1.5rem", marginBottom:"1.5rem", display:"flex", justifyContent:"space-between", alignItems:"center", flexWrap:"wrap", gap:"0.5rem" }}>
                   <span style={{ fontFamily:"var(--font-serif)", fontSize:"1.05rem", color:"white" }}>{selected.name}</span>
@@ -534,7 +590,7 @@ function ContactInner() {
 
                 <div style={{ backgroundColor:"color-mix(in srgb, var(--color-cream) 70%, white)", borderRadius:"0.75rem", padding:"1.25rem 1.5rem", marginBottom:"1.5rem" }}>
                   <p style={{ fontFamily:"var(--font-serif)", fontSize:"1rem", color:"var(--color-cocoa)", marginBottom:"0.875rem", marginTop:0 }}>Order Summary</p>
-                  {[[selected.name, selected.priceDisplay],["Initial Consultation","Included"],["Unlimited Phone & Text Support","Included"]].map(([label, val])=>(
+                  {[[selected.name, selected.priceDisplay],["Initial Consultation","Included"],["Unlimited Phone & Text Support","Included"]].map(([label, val]) => (
                     <div key={label} style={{ display:"flex", justifyContent:"space-between", alignItems:"center", fontFamily:"var(--font-sans)", fontSize:"0.875rem", color:"color-mix(in srgb, var(--color-cocoa) 70%, transparent)", padding:"0.5rem 0", borderBottom:"1px solid color-mix(in srgb, var(--color-cocoa) 8%, transparent)" }}>
                       <span>{label}</span>
                       <span style={{ fontFamily:"var(--font-serif)", color:"var(--color-cocoa)" }}>{val}</span>
@@ -554,15 +610,17 @@ function ContactInner() {
                   onClick={handleStripeCheckout}
                   disabled={loading}
                   style={{ width:"100%", backgroundColor:"#635BFF", color:"white", border:"none", borderRadius:"0.75rem", padding:"1rem", fontFamily:"var(--font-sans)", fontWeight:600, fontSize:"1rem", cursor:loading?"not-allowed":"pointer", display:"flex", alignItems:"center", justifyContent:"center", gap:"0.625rem", opacity:loading?0.7:1 }}
-                  onMouseOver={(e)=>{ if(!loading) e.currentTarget.style.backgroundColor="#4f46e5"; }}
-                  onMouseOut={(e)=>{ e.currentTarget.style.backgroundColor="#635BFF"; }}
+                  onMouseOver={(e) => { if (!loading) e.currentTarget.style.backgroundColor="#4f46e5"; }}
+                  onMouseOut={(e) => { e.currentTarget.style.backgroundColor="#635BFF"; }}
                 >
-                  {loading ? "Redirecting to Stripe…" : <>
-                    <svg style={{ width:"1.125rem", height:"1.125rem", fill:"white" }} viewBox="0 0 24 24" aria-hidden="true">
-                      <path d="M13.479 9.883c-1.626-.604-2.512-1.067-2.512-1.803 0-.622.518-1.019 1.399-1.019 1.599 0 3.22.607 4.336 1.146l.635-3.91C16.024 3.713 14.34 3 12.05 3 9.301 3 7.2 4.527 7.2 7.21c0 2.521 1.873 3.785 4.228 4.573 1.671.566 2.278 1.067 2.278 1.757 0 .69-.556 1.134-1.569 1.134-1.463 0-3.318-.659-4.664-1.534l-.658 3.967c1.272.851 3.271 1.553 5.488 1.553 2.88 0 5.024-1.39 5.024-4.228-.001-2.615-1.87-3.842-4.848-4.549z"/>
-                    </svg>
-                    Pay Securely with Stripe
-                  </>}
+                  {loading ? "Redirecting to Stripe…" : (
+                    <>
+                      <svg style={{ width:"1.125rem", height:"1.125rem", fill:"white" }} viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M13.479 9.883c-1.626-.604-2.512-1.067-2.512-1.803 0-.622.518-1.019 1.399-1.019 1.599 0 3.22.607 4.336 1.146l.635-3.91C16.024 3.713 14.34 3 12.05 3 9.301 3 7.2 4.527 7.2 7.21c0 2.521 1.873 3.785 4.228 4.573 1.671.566 2.278 1.067 2.278 1.757 0 .69-.556 1.134-1.569 1.134-1.463 0-3.318-.659-4.664-1.534l-.658 3.967c1.272.851 3.271 1.553 5.488 1.553 2.88 0 5.024-1.39 5.024-4.228-.001-2.615-1.87-3.842-4.848-4.549z"/>
+                      </svg>
+                      Pay Securely with Stripe
+                    </>
+                  )}
                 </button>
                 <p style={{ fontFamily:"var(--font-sans)", fontSize:"0.75rem", color:"color-mix(in srgb, var(--color-cocoa) 40%, transparent)", textAlign:"center", margin:"0.625rem 0 0", display:"flex", alignItems:"center", justifyContent:"center", gap:"0.375rem" }}>
                   🔒 Payments processed securely by Stripe
@@ -609,7 +667,7 @@ function ContactInner() {
                 {[
                   { label:"Instagram →", href:"https://instagram.com/motheringmelanin" },
                   { label:"TikTok →",    href:"https://tiktok.com/motheringmelanin" },
-                ].map((s)=>(
+                ].map((s) => (
                   <a key={s.label} href={s.href} target="_blank" rel="noopener noreferrer" style={{ fontFamily:"var(--font-sans)", fontSize:"0.875rem", color:"var(--color-terracotta)", textDecoration:"none" }}>
                     {s.label}
                   </a>

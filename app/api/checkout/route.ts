@@ -1,16 +1,14 @@
-// app/api/checkout/route.ts
 import Stripe from "stripe";
 import { NextRequest, NextResponse } from "next/server";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: "2026-02-25.clover",
+  apiVersion: "2023-10-16.clover",
 });
 
-// Package prices in cents
 const PRICES: Record<string, { name: string; amount: number }> = {
-  "blessed-beginnings":  { name: "Blessed Beginnings",   amount: 175000 },
-  "faithful-foundations":{ name: "Faithful Foundations",  amount: 150000 },
-  "grace-renewal":       { name: "Grace Renewal",         amount: 135000 },
+  "blessed-beginnings":   { name: "Blessed Beginnings",  amount: 50 },
+  "faithful-foundations": { name: "Faithful Foundations", amount: 150000 },
+  "grace-renewal":        { name: "Grace Renewal",        amount: 135000 },
 };
 
 export async function POST(req: NextRequest) {

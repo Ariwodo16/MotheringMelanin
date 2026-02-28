@@ -130,8 +130,8 @@ export default function HomePage() {
             transform: "translateY(-50%)",
             borderRadius: "2rem",
             overflow: "hidden",
-            width: "20rem",
-            height: "25rem",
+            width: "32rem",
+            height: "38rem",
             display: "none",
           }}>
           <Image

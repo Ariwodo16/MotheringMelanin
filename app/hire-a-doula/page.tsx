@@ -3,12 +3,12 @@ import Link from "next/link";
 import { CTASection } from "@/components/ui";
 
 export const metadata: Metadata = {
-  title: "Hire a Doula — Tampa Bay Birth Doula Directory",
+  title: "Our Partners — Mothering Melanin Partnership Directory",
   description:
-    "Every woman deserves a doula. Learn why doula support matters and find trusted birth doulas serving Tampa, St. Petersburg, and surrounding areas.",
+    "Every family deserves a full circle of support. Meet our trusted partners — chiropractors, midwives, and wellness providers serving Tampa Bay and surrounding areas.",
 };
 
-const whyDoula = [
+const whySupport = [
   {
     icon: "🤲",
     label: "Physical Support",
@@ -19,34 +19,29 @@ const whyDoula = [
     icon: "💛",
     label: "Emotional Support",
     detail:
-      "Doulas help families feel held and supported, creating space where the hormones of labor can work at their best — medicated or unmedicated, simple or complex.",
+      "Our network helps families feel held and supported, creating space where the hormones of labor can work at their best — medicated or unmedicated, simple or complex.",
   },
   {
     icon: "💑",
     label: "Partner Support",
     detail:
-      "Whether it's a partner, friend, or family member, our doulas support every birth partner in being as involved as they'd like.",
+      "Whether it's a partner, friend, or family member, our team supports every birth partner in being as involved as they'd like.",
   },
   {
     icon: "📋",
     label: "Evidence-Based Information",
     detail:
-      "Doulas help families connect with evidence-based resources, ask great questions, and advocate for the very best care from their providers.",
+      "Our partners help families connect with evidence-based resources, ask great questions, and advocate for the very best care from their providers.",
   },
 ];
 
-const doulas = [
-  { name: "Mothering Melanin",       href: "http://www.motheringmelanin.com",      featured: true  },
-  { name: "3 Gems Birth Services",   href: "http://3gemsbirthservices.com",         featured: false },
-  { name: "Better Together Birthing",href: "http://www.bettertogetherbirthing.com", featured: false },
-  { name: "Buddha Belly",            href: "https://buddhabellybirth.com",          featured: false },
-  { name: "Doula Hive",              href: "https://doulahive.com",                 featured: false },
-  { name: "Empowered Birth",         href: "https://doulaempoweredbirth.wixsite.com/erika", featured: false },
-  { name: "Hypnotherapy Mind",       href: "http://www.hypnotherapymind.com",       featured: false },
-  { name: "One Love",                href: "https://www.onelovedoula.com",          featured: false },
-  { name: "The Mindful Doula",       href: "https://www.instagram.com/themindfuldoula_tampabay/", featured: false },
-  { name: "Yolanda Corteo",          href: "https://www.yolandacorteo.com",         featured: false },
-  { name: "Your Call Doula",         href: "https://www.facebook.com/yourcalldoula", featured: false },
+const partners = [
+  { name: "Mothering Melanin", href: "http://www.motheringmelanin.com", featured: true  },
+  { name: "Bee Kind Family Chiropractor", href: "https://www.beekindfamilychiropractic.com/", featured: false },
+  { name: "Eden Chiropractic", href: "https://www.edenchiropracticfl.com/", featured: false },
+  { name: "Jireh Chiropractic", href: "https://www.jirehchiropractic.com", featured: false },
+  { name: "Tampa Bay Midwives", href: "https://tampabaymidwives.com/", featured: false },
+  { name: "Haven Oasis Wellness Co", href: "https://www.havenoasisco.com/", featured: false },
 ];
 
 export default function HireADoulaPage() {
@@ -59,13 +54,13 @@ export default function HireADoulaPage() {
       >
         <div className="container-narrow" style={{ textAlign: "center" }}>
           <span className="section-label" style={{ marginBottom: "1rem" }}>
-            Tampa Bay Doula Directory
+            Mothering Melanin Partnership Directory
           </span>
           <h1
             className="text-display-lg"
             style={{ color: "var(--color-cocoa)", marginBottom: "1.25rem", marginTop: "0.5rem" }}
           >
-            Every Woman Deserves a Doula
+            Every Body Deserves Full Circle Support
           </h1>
           <p
             className="text-body-lg"
@@ -77,16 +72,16 @@ export default function HireADoulaPage() {
               marginBottom: "2rem",
             }}
           >
-            A doula is a trained professional who provides continuous physical, emotional, and
-            informational support before, during, and shortly after childbirth — helping you
-            achieve the healthiest, most satisfying experience possible.
+            Birth is just the beginning. Our trusted network of chiropractors, midwives, and
+            wellness providers are here to support your whole family — before, during, and after
+            your birth journey.
           </p>
           <div style={{ display: "flex", flexWrap: "wrap", gap: "1rem", justifyContent: "center" }}>
             <Link href="/contact#consult" className="btn-terracotta">
               Book Mothering Melanin
             </Link>
             <Link href="#directory" className="btn-outline">
-              View All Doulas
+              View All Partners
             </Link>
           </div>
         </div>
@@ -113,16 +108,16 @@ export default function HireADoulaPage() {
             >
               scientific trials
             </a>{" "}
-            examining doula care demonstrate remarkably improved physical and psychological
+            examining birth support demonstrate remarkably improved physical and psychological
             outcomes for birthing people and their babies.{" "}
             <strong style={{ color: "var(--color-cream)" }}>
-              Doulas have a positive impact on the well-being of the entire family.
+              A strong support network has a positive impact on the well-being of the entire family.
             </strong>
           </p>
         </div>
       </section>
 
-      {/* WHY A DOULA */}
+      {/* WHY SUPPORT */}
       <section className="section-padding" style={{ backgroundColor: "var(--color-blush)" }}>
         <div className="container-wide">
           <div style={{ textAlign: "center", marginBottom: "3rem" }}>
@@ -133,7 +128,7 @@ export default function HireADoulaPage() {
               className="text-display-md"
               style={{ color: "var(--color-cocoa)", marginTop: "0.5rem" }}
             >
-              What a doula brings to your birth
+              What our network brings to your birth
             </h2>
           </div>
           <div
@@ -143,7 +138,7 @@ export default function HireADoulaPage() {
               gap: "1.25rem",
             }}
           >
-            {whyDoula.map((item) => (
+            {whySupport.map((item) => (
               <div
                 key={item.label}
                 className="card"
@@ -188,7 +183,7 @@ export default function HireADoulaPage() {
         <div className="container-wide">
           <div style={{ textAlign: "center", marginBottom: "3.5rem" }}>
             <span className="section-label" style={{ marginBottom: "0.75rem" }}>
-              Recommended Doulas
+              Trusted Partners
             </span>
             <h2
               className="text-display-md"
@@ -208,7 +203,7 @@ export default function HireADoulaPage() {
                 lineHeight: 1.7,
               }}
             >
-              All families benefit with a birth doula on their team. Here are some we recommend
+              Every family benefits from a trusted care team. Here are our recommended partners
               serving Tampa, St. Petersburg, and surrounding areas.
             </p>
           </div>
@@ -220,10 +215,10 @@ export default function HireADoulaPage() {
               gap: "1rem",
             }}
           >
-            {doulas.map((doula) => (
+            {partners.map((partner) => (
               <a
-                key={doula.name}
-                href={doula.href}
+                key={partner.name}
+                href={partner.href}
                 target="_blank"
                 rel="noopener noreferrer"
                 style={{
@@ -235,18 +230,17 @@ export default function HireADoulaPage() {
                   borderRadius: "var(--radius-card)",
                   textDecoration: "none",
                   transition: "all 0.2s",
-                  backgroundColor: doula.featured ? "var(--color-cocoa)" : "white",
-                  boxShadow: doula.featured ? "var(--shadow-card-hover)" : "var(--shadow-card)",
-                  outline: doula.featured ? "2px solid var(--color-terracotta)" : "none",
+                  backgroundColor: partner.featured ? "var(--color-cocoa)" : "white",
+                  boxShadow: partner.featured ? "var(--shadow-card-hover)" : "var(--shadow-card)",
+                  outline: partner.featured ? "2px solid var(--color-terracotta)" : "none",
                 }}
-
               >
                 <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
-                  {doula.featured && (
+                  {partner.featured && (
                     <span style={{ fontSize: "1.25rem" }} aria-hidden="true">🌿</span>
                   )}
                   <div>
-                    {doula.featured && (
+                    {partner.featured && (
                       <span
                         style={{
                           display: "block",
@@ -267,12 +261,10 @@ export default function HireADoulaPage() {
                         fontFamily: "var(--font-serif)",
                         fontSize: "1.05rem",
                         fontWeight: 500,
-                        color: doula.featured
-                          ? "var(--color-cream)"
-                          : "var(--color-cocoa)",
+                        color: partner.featured ? "var(--color-cream)" : "var(--color-cocoa)",
                       }}
                     >
-                      {doula.name}
+                      {partner.name}
                     </span>
                   </div>
                 </div>
@@ -281,7 +273,7 @@ export default function HireADoulaPage() {
                     width: "1rem",
                     height: "1rem",
                     flexShrink: 0,
-                    color: doula.featured
+                    color: partner.featured
                       ? "color-mix(in srgb, var(--color-cream) 50%, transparent)"
                       : "var(--color-terracotta)",
                     fill: "none",
@@ -316,7 +308,7 @@ export default function HireADoulaPage() {
             >
               Tampa Bay Midwives
             </a>
-            . Know a doula who should be listed?{" "}
+            . Know a provider who should be listed?{" "}
             <Link href="/contact" style={{ color: "var(--color-terracotta)", textDecoration: "none" }}>
               Get in touch.
             </Link>
@@ -340,8 +332,8 @@ export default function HireADoulaPage() {
               Please note:
             </strong>{" "}
             Doula services are not medical care and do not replace the services of a licensed
-            healthcare provider. Doulas work alongside your OB, midwife, or care team to support
-            your experience — not replace it.
+            healthcare provider. Our partners work alongside your OB, midwife, or care team to
+            support your experience — not replace it.
           </p>
         </div>
       </section>

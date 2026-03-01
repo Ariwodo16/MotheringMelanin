@@ -44,7 +44,7 @@ const PACKAGES: Package[] = [
     id: "blessed-beginnings",
     name: "Blessed Beginnings",
     tagline: "A prayer-filled start for new families seeking holistic support",
-    price: 1, priceDisplay: "$1", isFree: false, badge: "Most Popular",
+    price: 1750, priceDisplay: "$1,750", isFree: false, badge: "Most Popular",
     includes: [
       "3 prenatal meetings — birth plan, coping skills & relationship building",
       "Unlimited text & phone support from moment of hire",

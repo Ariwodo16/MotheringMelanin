@@ -6,7 +6,7 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
 });
 
 const PRICES: Record<string, { name: string; amount: number }> = {
-  "blessed-beginnings":   { name: "Blessed Beginnings",  amount: 100 },
+  "blessed-beginnings":   { name: "Blessed Beginnings",  amount: 175000 },
   "faithful-foundations": { name: "Faithful Foundations", amount: 150000 },
   "grace-renewal":        { name: "Grace Renewal",        amount: 135000 },
 };

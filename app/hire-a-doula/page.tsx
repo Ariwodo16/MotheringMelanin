@@ -288,32 +288,7 @@ export default function HireADoulaPage() {
               </a>
             ))}
           </div>
-
-          <p
-            style={{
-              textAlign: "center",
-              fontFamily: "var(--font-sans)",
-              fontSize: "0.75rem",
-              color: "color-mix(in srgb, var(--color-cocoa) 40%, transparent)",
-              marginTop: "2.5rem",
-              lineHeight: 1.7,
-            }}
-          >
-            This directory is maintained in partnership with{" "}
-            <a
-              href="https://tampabaymidwives.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{ color: "var(--color-terracotta)", textDecoration: "none" }}
-            >
-              Tampa Bay Midwives
-            </a>
-            . Know a provider who should be listed?{" "}
-            <Link href="/contact" style={{ color: "var(--color-terracotta)", textDecoration: "none" }}>
-              Get in touch.
-            </Link>
-          </p>
-        </div>
+          </div>
       </section>
 
       {/* DISCLAIMER */}

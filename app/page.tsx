@@ -16,7 +16,6 @@ const services = [
   { icon: "🌿", title: "Birth Doula Support", description: "Continuous, evidence-based labor and birth support — physical comfort, emotional grounding, and unwavering advocacy from early labor through delivery.", forWho: "Pregnant individuals & birthing families" },
   { icon: "🌸", title: "Prenatal Support", description: "Two or more prenatal visits to build your care plan, explore your birth preferences, and prepare your mind, body, and birth team.", forWho: "Any trimester, ideally starting in second or third" },
   { icon: "☀️", title: "Postpartum Support", description: "Follow-up visits and check-ins in the days after birth — newborn care guidance, emotional support, and referrals to trusted local resources.", forWho: "New parents in the fourth trimester" },
-  { icon: "💻", title: "Virtual Doula Support", description: "Remote prenatal education, birth preparation coaching, and postpartum check-ins available to families everywhere.", forWho: "Families outside Tampa Bay or with scheduling needs" },
   { icon: "📋", title: "Birth Plan Guidance", description: "Collaborative, informed birth planning that reflects your values, communicates your preferences, and supports your right to informed consent.", forWho: "Any birthing person seeking clarity and advocacy" },
   { icon: "🤝", title: "Partner Support", description: "Your partner or support person is coached and included — learn how to show up, advocate, and bond through the birth experience together.", forWho: "Partners, co-parents, and chosen family" },
 ];

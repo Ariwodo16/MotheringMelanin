@@ -5,7 +5,7 @@ import { CTASection } from "@/components/ui";
 export const metadata: Metadata = {
   title: "Our Partners — Mothering Melanin Partnership Directory",
   description:
-    "Every family deserves a full circle of support. Meet our trusted partners — chiropractors, midwives, and wellness providers serving Tampa Bay and surrounding areas.",
+    "Every family deserves a full circle of support. Meet our trusted partners — chiropractors, midwives, and mental health providers serving Tampa Bay and surrounding areas.",
 };
 
 const whySupport = [
@@ -98,19 +98,7 @@ export default function HireADoulaPage() {
               lineHeight: 1.8,
               margin: 0,
             }}
-          >
-            Countless{" "}
-            <a
-              href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6483123/"
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{ color: "var(--color-cream)", fontWeight: 500 }}
-            >
-              scientific trials
-            </a>{" "}
-            examining birth support demonstrate remarkably improved physical and psychological
-            outcomes for birthing people and their babies.{" "}
-            <strong style={{ color: "var(--color-cream)" }}>
+       
               A strong support network has a positive impact on the well-being of the entire family.
             </strong>
           </p>

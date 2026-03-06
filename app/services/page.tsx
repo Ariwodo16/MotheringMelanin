@@ -92,6 +92,8 @@ const US_STATES = [
   "VA","WA","WV","WI","WY","DC",
 ];
 
+type PaymentType = "full" | "installments";
+
 interface AddressData { country:string; line1:string; line2:string; city:string; state:string; zip:string; }
 interface IntakeData {
   firstName:string; lastName:string; age:string; pronouns:string;
@@ -187,20 +189,104 @@ function AddressBlock({ section, label, hint, intake, updateAddress }: {
   );
 }
 
+// ── Payment selector component ─────────────────────────────────────────────
+function PaymentSelector({ pkg, selected, onChange }: {
+  pkg: typeof packages[number];
+  selected: PaymentType;
+  onChange: (t: PaymentType) => void;
+}) {
+  const installmentAmount = Math.ceil(pkg.priceNum / 4);
+
+  return (
+    <div style={{ display:"flex", flexDirection:"column", gap:"0.625rem", margin:"0.25rem 0 0" }}>
+      {/* Pay in full */}
+      <label style={{
+        display:"flex", alignItems:"center", justifyContent:"space-between",
+        gap:"1rem", padding:"0.875rem 1rem", borderRadius:"0.75rem", cursor:"pointer",
+        border:`2px solid ${selected==="full" ? "var(--color-terracotta)" : "color-mix(in srgb, var(--color-cocoa) 12%, transparent)"}`,
+        backgroundColor: selected==="full" ? "color-mix(in srgb, var(--color-terracotta) 5%, white)" : "white",
+        transition:"all 0.2s",
+      }}>
+        <div style={{ display:"flex", alignItems:"center", gap:"0.75rem" }}>
+          <input
+            type="radio" name="paymentType" value="full"
+            checked={selected==="full"} onChange={()=>onChange("full")}
+            style={{ accentColor:"var(--color-terracotta)", width:"16px", height:"16px", flexShrink:0 }}
+          />
+          <div>
+            <p style={{ fontFamily:"var(--font-sans)", fontSize:"0.875rem", fontWeight:600, color:"var(--color-cocoa)", margin:0 }}>Pay in Full</p>
+            <p style={{ fontFamily:"var(--font-sans)", fontSize:"0.75rem", color:"color-mix(in srgb, var(--color-cocoa) 55%, transparent)", margin:0 }}>One payment today</p>
+          </div>
+        </div>
+        <span style={{ fontFamily:"var(--font-serif)", fontSize:"1.125rem", color:"var(--color-cocoa)", whiteSpace:"nowrap" }}>{pkg.price}</span>
+      </label>
+
+      {/* Pay in 4 */}
+      <label style={{
+        display:"flex", alignItems:"center", justifyContent:"space-between",
+        gap:"1rem", padding:"0.875rem 1rem", borderRadius:"0.75rem", cursor:"pointer",
+        border:`2px solid ${selected==="installments" ? "var(--color-terracotta)" : "color-mix(in srgb, var(--color-cocoa) 12%, transparent)"}`,
+        backgroundColor: selected==="installments" ? "color-mix(in srgb, var(--color-terracotta) 5%, white)" : "white",
+        transition:"all 0.2s",
+      }}>
+        <div style={{ display:"flex", alignItems:"center", gap:"0.75rem" }}>
+          <input
+            type="radio" name="paymentType" value="installments"
+            checked={selected==="installments"} onChange={()=>onChange("installments")}
+            style={{ accentColor:"var(--color-terracotta)", width:"16px", height:"16px", flexShrink:0 }}
+          />
+          <div>
+            <p style={{ fontFamily:"var(--font-sans)", fontSize:"0.875rem", fontWeight:600, color:"var(--color-cocoa)", margin:0 }}>
+              Pay in 4 Installments
+            </p>
+            <p style={{ fontFamily:"var(--font-sans)", fontSize:"0.75rem", color:"color-mix(in srgb, var(--color-cocoa) 55%, transparent)", margin:0 }}>
+              Every 2 weeks — no interest, no fees
+            </p>
+          </div>
+        </div>
+        <div style={{ textAlign:"right" }}>
+          <span style={{ fontFamily:"var(--font-serif)", fontSize:"1.125rem", color:"var(--color-terracotta)", whiteSpace:"nowrap" }}>
+            4 × ${installmentAmount.toLocaleString()}
+          </span>
+        </div>
+      </label>
+
+      {selected==="installments" && (
+        <div style={{ backgroundColor:"color-mix(in srgb, var(--color-cocoa) 4%, white)", borderRadius:"0.625rem", padding:"0.875rem 1rem" }}>
+          <p style={{ fontFamily:"var(--font-sans)", fontSize:"0.75rem", fontWeight:600, color:"var(--color-cocoa)", margin:"0 0 0.5rem" }}>Payment schedule</p>
+          <div style={{ display:"flex", flexDirection:"column", gap:"0.375rem" }}>
+            {["Today (at booking)", "2 weeks after booking", "4 weeks after booking", "6 weeks after booking"].map((when, i) => (
+              <div key={i} style={{ display:"flex", justifyContent:"space-between", fontFamily:"var(--font-sans)", fontSize:"0.75rem", color:"color-mix(in srgb, var(--color-cocoa) 65%, transparent)" }}>
+                <span>{when}</span>
+                <span style={{ color:"var(--color-cocoa)", fontWeight:500 }}>${installmentAmount.toLocaleString()}</span>
+              </div>
+            ))}
+          </div>
+          <p style={{ fontFamily:"var(--font-sans)", fontSize:"0.7rem", color:"color-mix(in srgb, var(--color-cocoa) 40%, transparent)", margin:"0.625rem 0 0", lineHeight:1.5 }}>
+            Each payment is automatically charged to your card on file. You'll receive a reminder 24 hours before each charge.
+          </p>
+        </div>
+      )}
+    </div>
+  );
+}
+
 type ModalStep = "intake"|"checkout"|"success";
 type ActivePackage = typeof packages[number]|null;
 
 export default function ServicesPage() {
-  const [activePkg, setActivePkg]     = useState<ActivePackage>(null);
-  const [step, setStep]               = useState<ModalStep>("intake");
-  const [intake, setIntake]           = useState<IntakeData>(emptyIntake);
-  const [loading, setLoading]         = useState(false);
-  const [stripeError, setStripeError] = useState<string|null>(null);
+  const [activePkg, setActivePkg]         = useState<ActivePackage>(null);
+  const [step, setStep]                   = useState<ModalStep>("intake");
+  const [intake, setIntake]               = useState<IntakeData>(emptyIntake);
+  const [paymentType, setPaymentType]     = useState<PaymentType>("full");
+  const [loading, setLoading]             = useState(false);
+  const [stripeError, setStripeError]     = useState<string|null>(null);
 
   function openModal(pkg: typeof packages[number]) {
     setActivePkg(pkg);
     setStep("intake");
     setIntake(emptyIntake);
+    setPaymentType("full");
     setStripeError(null);
     document.body.style.overflow = "hidden";
   }
@@ -258,6 +344,7 @@ export default function ServicesPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           packageId: activePkg.id,
+          paymentType,                  // "full" | "installments"
           customerEmail: intake.email,
           customerName: `${intake.firstName} ${intake.lastName}`.trim(),
         }),
@@ -336,14 +423,9 @@ export default function ServicesPage() {
                 boxShadow:pkg.highlight?"var(--shadow-card-hover)":"var(--shadow-card)",
                 outline:pkg.highlight?"2px solid var(--color-terracotta)":"none",
               }}>
-
                 {/* Image header */}
                 <div style={{ position:"relative", height:"180px", overflow:"hidden", flexShrink:0 }}>
-                  <img
-                    src={pkg.image}
-                    alt={pkg.name}
-                    style={{ width:"100%", height:"100%", objectFit:"cover", display:"block" }}
-                  />
+                  <img src={pkg.image} alt={pkg.name} style={{ width:"100%", height:"100%", objectFit:"cover", display:"block" }} />
                   <div style={{
                     position:"absolute", inset:0,
                     background:pkg.highlight
@@ -385,9 +467,15 @@ export default function ServicesPage() {
 
                   <p style={{ fontFamily:"var(--font-sans)", fontSize:"0.75rem", color:pkg.highlight?"color-mix(in srgb, var(--color-cream) 50%, transparent)":"color-mix(in srgb, var(--color-cocoa) 40%, transparent)", margin:0 }}>On-call: {pkg.onCall}</p>
 
-                  <div style={{ display:"flex", alignItems:"baseline", gap:"0.375rem" }}>
-                    <span style={{ fontFamily:"var(--font-serif)", fontSize:"1.75rem", fontWeight:300, color:pkg.highlight?"var(--color-cream)":"var(--color-cocoa)" }}>{pkg.price}</span>
-                    <span style={{ fontFamily:"var(--font-sans)", fontSize:"0.7rem", letterSpacing:"0.08em", textTransform:"uppercase" as const, color:pkg.highlight?"color-mix(in srgb, var(--color-cream) 50%, transparent)":"color-mix(in srgb, var(--color-cocoa) 40%, transparent)" }}>{pkg.priceNote}</span>
+                  <div>
+                    <div style={{ display:"flex", alignItems:"baseline", gap:"0.375rem" }}>
+                      <span style={{ fontFamily:"var(--font-serif)", fontSize:"1.75rem", fontWeight:300, color:pkg.highlight?"var(--color-cream)":"var(--color-cocoa)" }}>{pkg.price}</span>
+                      <span style={{ fontFamily:"var(--font-sans)", fontSize:"0.7rem", letterSpacing:"0.08em", textTransform:"uppercase" as const, color:pkg.highlight?"color-mix(in srgb, var(--color-cream) 50%, transparent)":"color-mix(in srgb, var(--color-cocoa) 40%, transparent)" }}>{pkg.priceNote}</span>
+                    </div>
+                    {/* Installment teaser */}
+                    <p style={{ fontFamily:"var(--font-sans)", fontSize:"0.72rem", color:pkg.highlight?"color-mix(in srgb, var(--color-cream) 55%, transparent)":"color-mix(in srgb, var(--color-cocoa) 45%, transparent)", margin:"0.2rem 0 0" }}>
+                      or 4 × ${Math.ceil(pkg.priceNum / 4).toLocaleString()} — pay over 6 weeks
+                    </p>
                   </div>
 
                   <button onClick={() => openModal(pkg)} className={pkg.highlight?"btn-terracotta":"btn-outline"} style={{ justifyContent:"center", width:"100%", cursor:"pointer" }}>
@@ -398,7 +486,7 @@ export default function ServicesPage() {
             ))}
           </div>
           <p style={{ textAlign:"center", fontFamily:"var(--font-sans)", fontSize:"0.75rem", color:"color-mix(in srgb, var(--color-cocoa) 40%, transparent)", marginTop:"2rem", maxWidth:"36rem", marginLeft:"auto", marginRight:"auto" }}>
-            Payment plans may be available — please ask during your free consultation. Grace Renewal is exclusively for returning clients.
+            Payment plans available — choose at checkout. Grace Renewal is exclusively for returning clients.
           </p>
         </div>
       </section>
@@ -431,6 +519,7 @@ export default function ServicesPage() {
                 <span style={{ fontFamily:"var(--font-serif)", fontSize:"1.2rem", fontWeight:300, color:"#F5D98C" }}>{activePkg.price}</span>
               </div>
 
+              {/* ── INTAKE ── */}
               {step==="intake" && (
                 <>
                   <h2 style={{ fontFamily:"var(--font-serif)", fontSize:"1.5rem", color:"var(--color-cocoa)", marginBottom:"0.25rem", marginTop:0 }}>Client Intake Form</h2>
@@ -439,7 +528,6 @@ export default function ServicesPage() {
                   </p>
 
                   <div style={{ display:"flex", flexDirection:"column", gap:"2rem" }}>
-
                     <div style={{ display:"flex", flexDirection:"column", gap:"0.875rem" }}>
                       <h3 style={secHead}>Birthing Person</h3>
                       <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:"0.875rem" }}>
@@ -491,9 +579,7 @@ export default function ServicesPage() {
 
                     <div style={{ display:"flex", flexDirection:"column", gap:"0.875rem" }}>
                       <h3 style={secHead}>Pre-existing Conditions / Injuries</h3>
-                      <p style={{ fontFamily:"var(--font-sans)", fontSize:"0.75rem", color:"color-mix(in srgb, var(--color-cocoa) 50%, transparent)", margin:"-0.25rem 0 0", lineHeight:1.5 }}>
-                        Select all that apply. This information is kept strictly confidential.
-                      </p>
+                      <p style={{ fontFamily:"var(--font-sans)", fontSize:"0.75rem", color:"color-mix(in srgb, var(--color-cocoa) 50%, transparent)", margin:"-0.25rem 0 0", lineHeight:1.5 }}>Select all that apply. This information is kept strictly confidential.</p>
                       <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:"0.5rem" }}>
                         {CONDITIONS.map((condition) => (
                           <label key={condition} style={{ display:"flex", alignItems:"center", gap:"0.5rem", cursor:"pointer", fontFamily:"var(--font-sans)", fontSize:"0.875rem", color:"color-mix(in srgb, var(--color-cocoa) 75%, transparent)" }}>
@@ -506,9 +592,7 @@ export default function ServicesPage() {
 
                     <div style={{ display:"flex", flexDirection:"column", gap:"0.875rem" }}>
                       <h3 style={secHead}>History of Abuse</h3>
-                      <p style={{ fontFamily:"var(--font-sans)", fontSize:"0.75rem", color:"color-mix(in srgb, var(--color-cocoa) 50%, transparent)", margin:"-0.25rem 0 0", lineHeight:1.5 }}>
-                        Select all that apply. This is shared so Jazzlyn can provide the most informed and sensitive support possible.
-                      </p>
+                      <p style={{ fontFamily:"var(--font-sans)", fontSize:"0.75rem", color:"color-mix(in srgb, var(--color-cocoa) 50%, transparent)", margin:"-0.25rem 0 0", lineHeight:1.5 }}>Select all that apply. This is shared so Jazzlyn can provide the most informed and sensitive support possible.</p>
                       <div style={{ display:"flex", flexDirection:"column", gap:"0.5rem" }}>
                         {HISTORY_OF_ABUSE.map((item) => (
                           <label key={item} style={{ display:"flex", alignItems:"center", gap:"0.5rem", cursor:"pointer", fontFamily:"var(--font-sans)", fontSize:"0.875rem", color:"color-mix(in srgb, var(--color-cocoa) 75%, transparent)" }}>
@@ -560,15 +644,24 @@ export default function ServicesPage() {
                 </>
               )}
 
-              {step==="checkout" && (
+              {/* ── CHECKOUT ── */}
+              {step==="checkout" && activePkg && (
                 <>
                   <button onClick={()=>setStep("intake")} style={{ background:"none", border:"none", cursor:"pointer", fontFamily:"var(--font-sans)", fontSize:"0.8rem", color:"color-mix(in srgb, var(--color-cocoa) 55%, transparent)", display:"flex", alignItems:"center", gap:"6px", marginBottom:"1.25rem", padding:0 }}>
                     ← Back
                   </button>
                   <h2 style={{ fontFamily:"var(--font-serif)", fontSize:"1.5rem", color:"var(--color-cocoa)", marginBottom:"0.375rem", marginTop:0 }}>Complete Your Booking</h2>
                   <p style={{ fontFamily:"var(--font-sans)", fontSize:"0.875rem", color:"color-mix(in srgb, var(--color-cocoa) 60%, transparent)", marginBottom:"1.5rem", marginTop:0, lineHeight:1.7 }}>
-                    Review your order and pay securely. You&apos;ll be redirected to Stripe&apos;s checkout page.
+                    Choose how you'd like to pay, then complete your booking securely via Stripe.
                   </p>
+
+                  {/* Payment type selector */}
+                  <div style={{ marginBottom:"1.5rem" }}>
+                    <p style={{ fontFamily:"var(--font-sans)", fontSize:"0.875rem", fontWeight:600, color:"var(--color-cocoa)", margin:"0 0 0.625rem" }}>Payment Option</p>
+                    <PaymentSelector pkg={activePkg} selected={paymentType} onChange={setPaymentType} />
+                  </div>
+
+                  {/* Order summary */}
                   <div style={{ backgroundColor:"color-mix(in srgb, var(--color-cocoa) 5%, white)", borderRadius:"0.75rem", padding:"1.25rem 1.5rem", marginBottom:"1.5rem" }}>
                     <p style={{ fontFamily:"var(--font-serif)", fontSize:"1rem", color:"var(--color-cocoa)", marginBottom:"0.875rem", marginTop:0 }}>Order Summary</p>
                     {[[activePkg.name, activePkg.price],["Initial Consultation","Included"],["Unlimited Phone & Text Support","Included"]].map(([label,val])=>(
@@ -577,8 +670,22 @@ export default function ServicesPage() {
                       </div>
                     ))}
                     <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", paddingTop:"0.75rem", marginTop:"0.25rem" }}>
-                      <span style={{ fontFamily:"var(--font-sans)", fontSize:"0.875rem", fontWeight:600, color:"var(--color-cocoa)" }}>Total Due Today</span>
-                      <span style={{ fontFamily:"var(--font-serif)", fontSize:"1.5rem", fontWeight:300, color:"var(--color-terracotta)" }}>{activePkg.price}</span>
+                      <span style={{ fontFamily:"var(--font-sans)", fontSize:"0.875rem", fontWeight:600, color:"var(--color-cocoa)" }}>
+                        {paymentType==="full" ? "Total Due Today" : "First Payment Due Today"}
+                      </span>
+                      <div style={{ textAlign:"right" }}>
+                        <span style={{ fontFamily:"var(--font-serif)", fontSize:"1.5rem", fontWeight:300, color:"var(--color-terracotta)", display:"block" }}>
+                          {paymentType==="full"
+                            ? activePkg.price
+                            : `$${Math.ceil(activePkg.priceNum / 4).toLocaleString()}`
+                          }
+                        </span>
+                        {paymentType==="installments" && (
+                          <span style={{ fontFamily:"var(--font-sans)", fontSize:"0.7rem", color:"color-mix(in srgb, var(--color-cocoa) 45%, transparent)" }}>
+                            3 more payments of ${Math.ceil(activePkg.priceNum / 4).toLocaleString()} every 2 weeks
+                          </span>
+                        )}
+                      </div>
                     </div>
                   </div>
 
@@ -598,7 +705,7 @@ export default function ServicesPage() {
                         <svg style={{ width:"1.125rem", height:"1.125rem", fill:"white" }} viewBox="0 0 24 24" aria-hidden="true">
                           <path d="M13.479 9.883c-1.626-.604-2.512-1.067-2.512-1.803 0-.622.518-1.019 1.399-1.019 1.599 0 3.22.607 4.336 1.146l.635-3.91C16.024 3.713 14.34 3 12.05 3 9.301 3 7.2 4.527 7.2 7.21c0 2.521 1.873 3.785 4.228 4.573 1.671.566 2.278 1.067 2.278 1.757 0 .69-.556 1.134-1.569 1.134-1.463 0-3.318-.659-4.664-1.534l-.658 3.967c1.272.851 3.271 1.553 5.488 1.553 2.88 0 5.024-1.39 5.024-4.228-.001-2.615-1.87-3.842-4.848-4.549z"/>
                         </svg>
-                        Pay Securely with Stripe
+                        {paymentType==="full" ? "Pay Securely with Stripe" : "Pay First Installment with Stripe"}
                       </>
                     )}
                   </button>
@@ -608,6 +715,7 @@ export default function ServicesPage() {
                 </>
               )}
 
+              {/* ── SUCCESS ── */}
               {step==="success" && (
                 <div style={{ padding:"2rem 0", textAlign:"center" }}>
                   <div style={{ fontSize:"2.5rem", marginBottom:"1rem" }}>🌸</div>

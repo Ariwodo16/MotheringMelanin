@@ -43,7 +43,7 @@ const faqs = [
   { question: "Can my partner still be involved?", answer: "Absolutely — partner involvement is encouraged and celebrated. A doula doesn't replace your partner; we work alongside them, helping them feel confident and connected throughout labor and birth." },
   { question: "Do you offer faith-guided support?", answer: "My personal faith informs the compassion and care I bring to this work, but I serve families of all backgrounds and beliefs. I will always follow your lead and respect your values fully." },
   { question: "Are doulas covered by insurance?", answer: "Some insurance plans, FSAs, and HSAs cover doula services. I'm happy to provide documentation to help you submit for reimbursement. Sliding scale and payment plans may be available — just ask." },
-  { question: "What if I have a C-section?", answer: "I support all birth experiences, including planned and unplanned cesareans. I'll be there to provide emotional support, help you understand what's happening, and be present for your recovery." },
+  { question: "What if I have a C-section?", answer: " I am an approved doula for support in the OR for Tampa General Hospital" },
 ];
 
 export default function HomePage() {

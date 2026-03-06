@@ -15,6 +15,8 @@ interface Package {
   includes: string[];
 }
 
+type PaymentType = "full" | "installments";
+
 interface AddressData { country: string; line1: string; line2: string; city: string; state: string; zip: string; }
 interface IntakeData {
   firstName: string; lastName: string; age: string; pronouns: string;
@@ -187,6 +189,79 @@ function AddressBlock({ section, label, hint, intake, updateAddress }: {
   );
 }
 
+// ── Payment Selector ──────────────────────────────────────────────────────────
+function PaymentSelector({ pkg, selected, onChange }: {
+  pkg: Package;
+  selected: PaymentType;
+  onChange: (t: PaymentType) => void;
+}) {
+  const installmentAmount = Math.ceil(pkg.price / 4);
+
+  const optionStyle = (t: PaymentType): React.CSSProperties => ({
+    display:"flex", alignItems:"center", justifyContent:"space-between",
+    gap:"1rem", padding:"0.875rem 1rem", borderRadius:"0.75rem", cursor:"pointer",
+    border:`2px solid ${selected===t ? "var(--color-terracotta)" : "color-mix(in srgb, var(--color-cocoa) 12%, transparent)"}`,
+    backgroundColor: selected===t ? "color-mix(in srgb, var(--color-terracotta) 5%, white)" : "white",
+    transition:"all 0.2s",
+  });
+
+  return (
+    <div style={{ display:"flex", flexDirection:"column", gap:"0.625rem" }}>
+      {/* Pay in full */}
+      <label style={optionStyle("full")}>
+        <div style={{ display:"flex", alignItems:"center", gap:"0.75rem" }}>
+          <input
+            type="radio" name="paymentType" value="full"
+            checked={selected==="full"} onChange={() => onChange("full")}
+            style={{ accentColor:"var(--color-terracotta)", width:"16px", height:"16px", flexShrink:0 }}
+          />
+          <div>
+            <p style={{ fontFamily:"var(--font-sans)", fontSize:"0.875rem", fontWeight:600, color:"var(--color-cocoa)", margin:0 }}>Pay in Full</p>
+            <p style={{ fontFamily:"var(--font-sans)", fontSize:"0.75rem", color:"color-mix(in srgb, var(--color-cocoa) 55%, transparent)", margin:0 }}>One payment today</p>
+          </div>
+        </div>
+        <span style={{ fontFamily:"var(--font-serif)", fontSize:"1.125rem", color:"var(--color-cocoa)", whiteSpace:"nowrap" }}>{pkg.priceDisplay}</span>
+      </label>
+
+      {/* Pay in 4 */}
+      <label style={optionStyle("installments")}>
+        <div style={{ display:"flex", alignItems:"center", gap:"0.75rem" }}>
+          <input
+            type="radio" name="paymentType" value="installments"
+            checked={selected==="installments"} onChange={() => onChange("installments")}
+            style={{ accentColor:"var(--color-terracotta)", width:"16px", height:"16px", flexShrink:0 }}
+          />
+          <div>
+            <p style={{ fontFamily:"var(--font-sans)", fontSize:"0.875rem", fontWeight:600, color:"var(--color-cocoa)", margin:0 }}>Pay in 4 Installments</p>
+            <p style={{ fontFamily:"var(--font-sans)", fontSize:"0.75rem", color:"color-mix(in srgb, var(--color-cocoa) 55%, transparent)", margin:0 }}>Every 2 weeks — no interest, no fees</p>
+          </div>
+        </div>
+        <span style={{ fontFamily:"var(--font-serif)", fontSize:"1.125rem", color:"var(--color-terracotta)", whiteSpace:"nowrap" }}>
+          4 × ${installmentAmount.toLocaleString()}
+        </span>
+      </label>
+
+      {/* Schedule breakdown */}
+      {selected==="installments" && (
+        <div style={{ backgroundColor:"color-mix(in srgb, var(--color-cocoa) 4%, white)", borderRadius:"0.625rem", padding:"0.875rem 1rem" }}>
+          <p style={{ fontFamily:"var(--font-sans)", fontSize:"0.75rem", fontWeight:600, color:"var(--color-cocoa)", margin:"0 0 0.5rem" }}>Payment schedule</p>
+          <div style={{ display:"flex", flexDirection:"column", gap:"0.375rem" }}>
+            {["Today (at booking)","2 weeks after booking","4 weeks after booking","6 weeks after booking"].map((when, i) => (
+              <div key={i} style={{ display:"flex", justifyContent:"space-between", fontFamily:"var(--font-sans)", fontSize:"0.75rem", color:"color-mix(in srgb, var(--color-cocoa) 65%, transparent)" }}>
+                <span>{when}</span>
+                <span style={{ color:"var(--color-cocoa)", fontWeight:500 }}>${installmentAmount.toLocaleString()}</span>
+              </div>
+            ))}
+          </div>
+          <p style={{ fontFamily:"var(--font-sans)", fontSize:"0.7rem", color:"color-mix(in srgb, var(--color-cocoa) 40%, transparent)", margin:"0.625rem 0 0", lineHeight:1.5 }}>
+            Each payment is automatically charged to your card on file. You&apos;ll receive a reminder 24 hours before each charge.
+          </p>
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ── Main component ────────────────────────────────────────────────────────────
 type Step = "select"|"intake"|"checkout"|"success";
 
@@ -196,6 +271,7 @@ function ContactInner() {
   const [step, setStep]               = useState<Step>("select");
   const [intake, setIntake]           = useState<IntakeData>(emptyIntake);
   const [hoveredId, setHoveredId]     = useState<string|null>(null);
+  const [paymentType, setPaymentType] = useState<PaymentType>("full");
   const [loading, setLoading]         = useState(false);
   const [stripeError, setStripeError] = useState<string|null>(null);
 
@@ -263,6 +339,7 @@ function ContactInner() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           packageId: selected.id,
+          paymentType,                                          // ← NEW
           customerEmail: intake.email,
           customerName: `${intake.firstName} ${intake.lastName}`.trim(),
         }),
@@ -353,7 +430,14 @@ function ContactInner() {
 
                         <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", paddingRight:"2rem", marginBottom:"0.375rem" }}>
                           <span style={{ fontFamily:"var(--font-serif)", fontSize:"1.125rem", color:"var(--color-cocoa)", fontWeight:400 }}>{pkg.name}</span>
-                          <span style={{ fontFamily:"var(--font-serif)", fontSize:"1.25rem", fontWeight:300, whiteSpace:"nowrap", color: pkg.isFree?"#7A8C6E":"var(--color-terracotta)" }}>{pkg.priceDisplay}</span>
+                          <div style={{ textAlign:"right" }}>
+                            <span style={{ fontFamily:"var(--font-serif)", fontSize:"1.25rem", fontWeight:300, whiteSpace:"nowrap", color: pkg.isFree?"#7A8C6E":"var(--color-terracotta)", display:"block" }}>{pkg.priceDisplay}</span>
+                            {!pkg.isFree && (
+                              <span style={{ fontFamily:"var(--font-sans)", fontSize:"0.68rem", color:"color-mix(in srgb, var(--color-cocoa) 40%, transparent)", whiteSpace:"nowrap" }}>
+                                or 4 × ${Math.ceil(pkg.price / 4).toLocaleString()}
+                              </span>
+                            )}
+                          </div>
                         </div>
 
                         <p style={{ fontFamily:"var(--font-sans)", fontSize:"0.8rem", fontStyle:"italic", color:"color-mix(in srgb, var(--color-cocoa) 55%, transparent)", margin:0, lineHeight:1.5 }}>{pkg.tagline}</p>
@@ -555,15 +639,9 @@ function ContactInner() {
                     </Field>
                   </div>
 
-                  {/* SUBMIT — sends email then routes to checkout or success */}
-                  <button
-                    onClick={submitIntake}
-                    className="btn-terracotta"
-                    style={{ justifyContent:"center", fontSize:"1rem", padding:"1rem" }}
-                  >
+                  <button onClick={submitIntake} className="btn-terracotta" style={{ justifyContent:"center", fontSize:"1rem", padding:"1rem" }}>
                     Continue to Checkout →
                   </button>
-
                   <p style={{ fontFamily:"var(--font-sans)", fontSize:"0.75rem", color:"color-mix(in srgb, var(--color-cocoa) 40%, transparent)", textAlign:"center", margin:0, lineHeight:1.6 }}>
                     Your information is private and will never be shared outside of your care.
                   </p>
@@ -585,9 +663,16 @@ function ContactInner() {
 
                 <h2 style={{ fontFamily:"var(--font-serif)", fontSize:"1.5rem", color:"var(--color-cocoa)", marginBottom:"0.375rem", marginTop:0 }}>Complete Your Booking</h2>
                 <p style={{ fontFamily:"var(--font-sans)", fontSize:"0.875rem", color:"color-mix(in srgb, var(--color-cocoa) 60%, transparent)", marginBottom:"1.5rem", marginTop:0, lineHeight:1.7 }}>
-                  Review your order and pay securely. You&apos;ll be redirected to Stripe&apos;s checkout page.
+                  Choose how you&apos;d like to pay, then complete your booking securely via Stripe.
                 </p>
 
+                {/* ── Payment type selector ── */}
+                <div style={{ marginBottom:"1.5rem" }}>
+                  <p style={{ fontFamily:"var(--font-sans)", fontSize:"0.875rem", fontWeight:600, color:"var(--color-cocoa)", margin:"0 0 0.625rem" }}>Payment Option</p>
+                  <PaymentSelector pkg={selected} selected={paymentType} onChange={setPaymentType} />
+                </div>
+
+                {/* ── Order summary ── */}
                 <div style={{ backgroundColor:"color-mix(in srgb, var(--color-cream) 70%, white)", borderRadius:"0.75rem", padding:"1.25rem 1.5rem", marginBottom:"1.5rem" }}>
                   <p style={{ fontFamily:"var(--font-serif)", fontSize:"1rem", color:"var(--color-cocoa)", marginBottom:"0.875rem", marginTop:0 }}>Order Summary</p>
                   {[[selected.name, selected.priceDisplay],["Initial Consultation","Included"],["Unlimited Phone & Text Support","Included"]].map(([label, val]) => (
@@ -597,8 +682,19 @@ function ContactInner() {
                     </div>
                   ))}
                   <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", paddingTop:"0.75rem", marginTop:"0.25rem" }}>
-                    <span style={{ fontFamily:"var(--font-sans)", fontSize:"0.875rem", fontWeight:600, color:"var(--color-cocoa)" }}>Total Due Today</span>
-                    <span style={{ fontFamily:"var(--font-serif)", fontSize:"1.5rem", fontWeight:300, color:"var(--color-terracotta)" }}>{selected.priceDisplay}</span>
+                    <span style={{ fontFamily:"var(--font-sans)", fontSize:"0.875rem", fontWeight:600, color:"var(--color-cocoa)" }}>
+                      {paymentType==="full" ? "Total Due Today" : "First Payment Due Today"}
+                    </span>
+                    <div style={{ textAlign:"right" }}>
+                      <span style={{ fontFamily:"var(--font-serif)", fontSize:"1.5rem", fontWeight:300, color:"var(--color-terracotta)", display:"block" }}>
+                        {paymentType==="full" ? selected.priceDisplay : `$${Math.ceil(selected.price / 4).toLocaleString()}`}
+                      </span>
+                      {paymentType==="installments" && (
+                        <span style={{ fontFamily:"var(--font-sans)", fontSize:"0.7rem", color:"color-mix(in srgb, var(--color-cocoa) 45%, transparent)" }}>
+                          3 more payments of ${Math.ceil(selected.price / 4).toLocaleString()} every 2 weeks
+                        </span>
+                      )}
+                    </div>
                   </div>
                 </div>
 
@@ -618,7 +714,7 @@ function ContactInner() {
                       <svg style={{ width:"1.125rem", height:"1.125rem", fill:"white" }} viewBox="0 0 24 24" aria-hidden="true">
                         <path d="M13.479 9.883c-1.626-.604-2.512-1.067-2.512-1.803 0-.622.518-1.019 1.399-1.019 1.599 0 3.22.607 4.336 1.146l.635-3.91C16.024 3.713 14.34 3 12.05 3 9.301 3 7.2 4.527 7.2 7.21c0 2.521 1.873 3.785 4.228 4.573 1.671.566 2.278 1.067 2.278 1.757 0 .69-.556 1.134-1.569 1.134-1.463 0-3.318-.659-4.664-1.534l-.658 3.967c1.272.851 3.271 1.553 5.488 1.553 2.88 0 5.024-1.39 5.024-4.228-.001-2.615-1.87-3.842-4.848-4.549z"/>
                       </svg>
-                      Pay Securely with Stripe
+                      {paymentType==="full" ? "Pay Securely with Stripe" : "Pay First Installment with Stripe"}
                     </>
                   )}
                 </button>

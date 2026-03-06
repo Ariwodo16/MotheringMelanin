@@ -87,24 +87,6 @@ export default function HireADoulaPage() {
         </div>
       </section>
 
-      {/* SCIENCE CALLOUT */}
-      <section style={{ padding: "2.5rem 0", backgroundColor: "var(--color-cocoa)" }}>
-        <div className="container-narrow" style={{ textAlign: "center" }}>
-          <p
-            style={{
-              fontFamily: "var(--font-sans)",
-              fontSize: "0.95rem",
-              color: "color-mix(in srgb, var(--color-cream) 80%, transparent)",
-              lineHeight: 1.8,
-              margin: 0,
-            }}
-       
-              A strong support network has a positive impact on the well-being of the entire family.
-            </strong>
-          </p>
-        </div>
-      </section>
-
       {/* WHY SUPPORT */}
       <section className="section-padding" style={{ backgroundColor: "var(--color-blush)" }}>
         <div className="container-wide">

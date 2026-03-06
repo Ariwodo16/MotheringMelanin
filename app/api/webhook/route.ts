@@ -2,10 +2,20 @@ import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: "2024-06-20",
+  apiVersion: "2026-02-25.clover",
 });
 
 const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET!;
+
+function getSubscriptionId(invoice: Stripe.Invoice): string | null {
+  // 2026-02-25.clover API uses invoice.parent instead of invoice.subscription
+  const parent = (invoice as any).parent;
+  if (parent?.type === "subscription_details") {
+    return parent.subscription_details?.subscription ?? null;
+  }
+  // fallback for older shapes
+  return (invoice as any).subscription ?? null;
+}
 
 export async function POST(req: NextRequest) {
   const body = await req.text();
@@ -20,22 +30,20 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Invalid signature" }, { status: 400 });
   }
 
-  // Listen for successful invoice payments on installment subscriptions
+  // ── Successful payment ────────────────────────────────────────────────────
   if (event.type === "invoice.payment_succeeded") {
     const invoice = event.data.object as Stripe.Invoice;
-    const subscriptionId = invoice.subscription as string;
+    const subscriptionId = getSubscriptionId(invoice);
 
     if (!subscriptionId) return NextResponse.json({ received: true });
 
     const subscription = await stripe.subscriptions.retrieve(subscriptionId);
     const meta = subscription.metadata;
 
-    // Only handle installment plans
     if (meta.paymentType !== "installments") return NextResponse.json({ received: true });
 
     const totalInstallments = parseInt(meta.totalInstallments ?? "4", 10);
 
-    // Count how many invoices have been paid for this subscription
     const invoices = await stripe.invoices.list({
       subscription: subscriptionId,
       status: "paid",
@@ -45,23 +53,20 @@ export async function POST(req: NextRequest) {
 
     console.log(`Installment ${paidCount}/${totalInstallments} paid for subscription ${subscriptionId}`);
 
-    // Cancel after all installments are paid
     if (paidCount >= totalInstallments) {
       await stripe.subscriptions.cancel(subscriptionId);
       console.log(`Subscription ${subscriptionId} cancelled after ${totalInstallments} payments.`);
     }
   }
 
-  // Handle failed payment — optional: notify the client
+  // ── Failed payment ────────────────────────────────────────────────────────
   if (event.type === "invoice.payment_failed") {
     const invoice = event.data.object as Stripe.Invoice;
-    const subscriptionId = invoice.subscription as string;
+    const subscriptionId = getSubscriptionId(invoice);
 
     if (subscriptionId) {
       const subscription = await stripe.subscriptions.retrieve(subscriptionId);
       if (subscription.metadata.paymentType === "installments") {
-        // Stripe will automatically retry the charge per your retry settings
-        // You can add email notification logic here if needed
         console.warn(`Installment payment failed for subscription ${subscriptionId}`);
       }
     }

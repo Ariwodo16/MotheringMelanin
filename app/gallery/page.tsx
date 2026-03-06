@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 
 const photos = [
   { src: "/logos/client1.jpeg", alt: "Client birth moment", caption: "A powerful moment of strength", span: "tall" },
-  { src: "/logos/client2.jpeg", alt: "Prenatal visit", caption: "Prenatal support session", span: "normal" },
+  { src: "/logos/client2.jpeg", alt: "Prenatal visit", caption: "Holding space for generations of motherhood", span: "normal" },
   /*{ src: "/logos/client1.jpg", alt: "Postpartum visit", caption: "Fourth trimester love", span: "normal" },
   { src: "/logos/client1.jpg", alt: "Labor support", caption: "Continuous labor support", span: "wide" },
   { src: "/logos/client1.jpg", alt: "Birth team", caption: "Every birth team is sacred", span: "normal" },

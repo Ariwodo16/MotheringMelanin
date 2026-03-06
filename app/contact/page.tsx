@@ -666,7 +666,7 @@ function ContactInner() {
               <div style={{ display:"flex", flexDirection:"column", gap:"0.5rem" }}>
                 {[
                   { label:"Instagram →", href:"https://instagram.com/motheringmelanin" },
-                  { label:"TikTok →",    href:"https://tiktok.com/motheringmelanin" },
+                  { label:"TikTok →",    href:"https://www.tiktok.com/@motheringmelanin" },
                 ].map((s) => (
                   <a key={s.label} href={s.href} target="_blank" rel="noopener noreferrer" style={{ fontFamily:"var(--font-sans)", fontSize:"0.875rem", color:"var(--color-terracotta)", textDecoration:"none" }}>
                     {s.label}

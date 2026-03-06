@@ -17,6 +17,12 @@ interface Package {
 
 type PaymentType = "full" | "installments";
 
+const CONTRACT_FILES: Record<string, string> = {
+  "blessed-beginnings":   "/contracts/blessed-beginnings-contract.pdf",
+  "faithful-foundations": "/contracts/faithful-foundations-contract.pdf",
+  "grace-renewal":        "/contracts/grace-renewal-contract.pdf",
+};
+
 interface AddressData { country: string; line1: string; line2: string; city: string; state: string; zip: string; }
 interface IntakeData {
   firstName: string; lastName: string; age: string; pronouns: string;
@@ -271,9 +277,10 @@ function ContactInner() {
   const [step, setStep]               = useState<Step>("select");
   const [intake, setIntake]           = useState<IntakeData>(emptyIntake);
   const [hoveredId, setHoveredId]     = useState<string|null>(null);
-  const [paymentType, setPaymentType] = useState<PaymentType>("full");
-  const [loading, setLoading]         = useState(false);
-  const [stripeError, setStripeError] = useState<string|null>(null);
+  const [paymentType, setPaymentType]       = useState<PaymentType>("full");
+  const [agreedToContract, setAgreedToContract] = useState(false);
+  const [loading, setLoading]               = useState(false);
+  const [stripeError, setStripeError]       = useState<string|null>(null);
 
   useEffect(() => {
     if (searchParams.get("success") === "true") {
@@ -325,6 +332,7 @@ function ContactInner() {
     if (selected.isFree) {
       setStep("success");
     } else {
+      setAgreedToContract(false);
       setStep("checkout");
     }
   }
@@ -702,10 +710,31 @@ function ContactInner() {
                   <p style={{ fontFamily:"var(--font-sans)", fontSize:"0.85rem", color:"#c0392b", backgroundColor:"#fdf0ef", borderRadius:"0.5rem", padding:"0.75rem 1rem", marginBottom:"1rem" }}>{stripeError}</p>
                 )}
 
+                {/* ── Contract agreement ── */}
+                <label style={{ display:"flex", alignItems:"flex-start", gap:"0.625rem", cursor:"pointer", marginBottom:"1rem" }}>
+                  <input
+                    type="checkbox"
+                    checked={agreedToContract}
+                    onChange={(e) => setAgreedToContract(e.target.checked)}
+                    style={{ accentColor:"var(--color-terracotta)", width:"16px", height:"16px", flexShrink:0, marginTop:"2px" }}
+                  />
+                  <span style={{ fontFamily:"var(--font-sans)", fontSize:"0.8rem", color:"color-mix(in srgb, var(--color-cocoa) 70%, transparent)", lineHeight:1.6 }}>
+                    I have read and agree to the{" "}
+                    <a
+                      href={CONTRACT_FILES[selected.id]}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{ color:"var(--color-terracotta)", textDecoration:"underline" }}
+                    >
+                      {selected.name} Service Agreement →
+                    </a>
+                  </span>
+                </label>
+
                 <button
                   onClick={handleStripeCheckout}
-                  disabled={loading}
-                  style={{ width:"100%", backgroundColor:"#635BFF", color:"white", border:"none", borderRadius:"0.75rem", padding:"1rem", fontFamily:"var(--font-sans)", fontWeight:600, fontSize:"1rem", cursor:loading?"not-allowed":"pointer", display:"flex", alignItems:"center", justifyContent:"center", gap:"0.625rem", opacity:loading?0.7:1 }}
+                  disabled={loading || !agreedToContract}
+                  style={{ width:"100%", backgroundColor:"#635BFF", color:"white", border:"none", borderRadius:"0.75rem", padding:"1rem", fontFamily:"var(--font-sans)", fontWeight:600, fontSize:"1rem", cursor:(loading||!agreedToContract)?"not-allowed":"pointer", display:"flex", alignItems:"center", justifyContent:"center", gap:"0.625rem", opacity:(loading||!agreedToContract)?0.5:1 }}
                   onMouseOver={(e) => { if (!loading) e.currentTarget.style.backgroundColor="#4f46e5"; }}
                   onMouseOut={(e) => { e.currentTarget.style.backgroundColor="#635BFF"; }}
                 >
